@@ -5,7 +5,7 @@
 
 using namespace godot;
 
-Ref<Currency> EconomyManager::create_currency(const int &id,const String &name, int precision, float base_value, const String &symbol)
+Ref<Currency> EconomyManager::create_currency(const String &id,const String &name, int precision, float base_value, const String &symbol)
 {
     Ref<Currency> cur;
     cur.instantiate();
@@ -29,7 +29,7 @@ if (!currency.is_valid())
     emit_signal("currency_registered", currency);
 }
 
-Ref<Currency> EconomyManager::get_currency(const int &id)
+Ref<Currency> EconomyManager::get_currency(const String &id)
 {
     auto v = currencies.find_key(id);
     return v;

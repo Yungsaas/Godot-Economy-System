@@ -8,8 +8,8 @@ class Currency : public Resource
 GDCLASS(Currency, Resource)
 
 public:
-    int id;
-    String name;
+    String id;
+    String display_name;
     int precision = 2; // decimal places
     float base_value = 1.0;
     String symbol;
@@ -17,11 +17,11 @@ public:
     Currency() {}
     ~Currency() override {}
 
-    int get_id() const { return id; }
-    void set_id(const int &v) { id = v; }
+    String get_id() const { return id; }
+    void set_id(const String &v) { id = v; }
 
-    String get_name() const { return name; }
-    void set_name(const String &v) { name = v; }
+    String get_name() const { return display_name; }
+    void set_name(const String &v) { display_name = v; }
 
     int get_precision() const { return precision; }
     void set_precision(int v) { precision = v; }

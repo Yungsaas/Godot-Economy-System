@@ -6,11 +6,11 @@ using namespace godot;
 void Currency::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_id"), &Currency::get_id);
     ClassDB::bind_method(D_METHOD("set_id", "id"), &Currency::set_id);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "id"), "set_id", "get_id");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "id"), "set_id", "get_id");
 
     ClassDB::bind_method(D_METHOD("get_name"), &Currency::get_name);
-    ClassDB::bind_method(D_METHOD("set_name", "name"), &Currency::set_name);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name", "get_name");
+    ClassDB::bind_method(D_METHOD("set_name", "display_name"), &Currency::set_name);
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "display_name"), "set_name", "get_name");
 
     ClassDB::bind_method(D_METHOD("get_precision"), &Currency::get_precision);
     ClassDB::bind_method(D_METHOD("set_precision", "precision"), &Currency::set_precision);

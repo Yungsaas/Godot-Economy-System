@@ -15,9 +15,9 @@ class EconomyManager : public Node
 
 public:
 
-    Ref<Currency> create_currency(const int &id,const String &name, int precision = 2, float base_value = 1.0, const String &symbol = "$");
+    Ref<Currency> create_currency(const String &id,const String &name, int precision = 2, float base_value = 1.0, const String &symbol = "$");
     void register_currency(const Ref<Currency> &currency);
-    Ref<Currency> get_currency(const int &id);
+    Ref<Currency> get_currency(const String &id);
 
 protected:
 	static void _bind_methods();
