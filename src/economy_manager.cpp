@@ -39,9 +39,11 @@ void EconomyManager::_bind_methods()
 {
 
     /* Currencies */
-    ClassDB::bind_method(D_METHOD("create_currency", "id", "name", "divisible", "precision", "base_value", "symbol"),
-                         &EconomyManager::create_currency, DEFVAL(true), DEFVAL(2), DEFVAL(1.0), DEFVAL(String("$")));
+    ClassDB::bind_method(D_METHOD("create_currency", "id", "name", "precision", "base_value", "symbol"),
+                         &EconomyManager::create_currency, DEFVAL(2), DEFVAL(1.0), DEFVAL(String("$")));
     ClassDB::bind_method(D_METHOD("register_currency", "currency"), &EconomyManager::register_currency);
     ClassDB::bind_method(D_METHOD("get_currency", "id"), &EconomyManager::get_currency);
 
+    /* Signals */
+    ADD_SIGNAL(MethodInfo("currency_registered", PropertyInfo(Variant::OBJECT, "currency")));
 }
