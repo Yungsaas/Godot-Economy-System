@@ -2,7 +2,9 @@
 #include "economy_manager.hpp"
 #include "godot_cpp/classes/ref.hpp"
 #include "godot_cpp/core/class_db.hpp"
+#include "godot_cpp/core/object.hpp"
 #include "godot_cpp/core/print_string.hpp"
+#include "godot_cpp/core/property_info.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
 
 using namespace godot;
@@ -78,6 +80,10 @@ Dictionary EconomyManager::get_items()
     return items;
 }
 
+void EconomyManager::_ready(){
+    add_to_group("economy_manager");
+}
+
 void EconomyManager::_bind_methods() 
 {
 
@@ -94,7 +100,7 @@ void EconomyManager::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_item", "id"), &EconomyManager::get_item);
     ClassDB::bind_method(D_METHOD("get_items"), &EconomyManager::get_items);
 
-    /* Signals */
+    /* Signal emitters */
     ADD_SIGNAL(MethodInfo("currency_registered", PropertyInfo(Variant::OBJECT, "currency")));
     ADD_SIGNAL(MethodInfo("item_registered", PropertyInfo(Variant::OBJECT, "item")));
 }

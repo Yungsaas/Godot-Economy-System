@@ -1,11 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://hn8dh5y3yq6a"]
+[gd_scene load_steps=5 format=3 uid="uid://hn8dh5y3yq6a"]
 
 [ext_resource type="Script" uid="uid://gscsivoywwwo" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dqfg42os77oxr" path="res://economy_manager.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://pqdje8fopxb6" path="res://wallet.gd" id="2_1bvp3"]
 [ext_resource type="Script" uid="uid://citbapqhsvw3w" path="res://item_list.gd" id="3_h2yge"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_ig7tw")
+
+[node name="Wallet1" type="Wallet" parent="."]
+script = ExtResource("2_1bvp3")
+
+[node name="Wallet2" type="Wallet" parent="."]
+script = ExtResource("2_1bvp3")
 
 [node name="EconomyManager" type="EconomyManager" parent="."]
 script = ExtResource("2_0xm2m")

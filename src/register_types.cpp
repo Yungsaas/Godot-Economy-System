@@ -2,6 +2,7 @@
 #include "currency.hpp"
 #include "economy_item.hpp"
 #include "economy_manager.hpp"
+#include "wallet.hpp"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/class_db.hpp>
@@ -20,6 +21,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	GDREGISTER_CLASS(Currency)
 	GDREGISTER_CLASS(EconomyItem)
 	GDREGISTER_CLASS(EconomyManager)
+	GDREGISTER_CLASS(Wallet)
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {

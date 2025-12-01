@@ -16,7 +16,6 @@ class EconomyManager : public Node
 	GDCLASS(EconomyManager, Node)
 
 public:
-
     Ref<Currency> create_currency(const String &id,const String &name, int precision = 2, float base_value = 1.0, const String &symbol = "$");
     void register_currency(const Ref<Currency> &currency);
     Ref<Currency> get_currency(const String &id);
@@ -29,6 +28,8 @@ public:
 
     Dictionary get_items();
 
+    void _ready() override;
+    
 protected:
 	static void _bind_methods();
 
