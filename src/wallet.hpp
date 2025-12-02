@@ -19,10 +19,10 @@ public:
     bool has_currency(const String &currency_id, float amount) const;
     bool transfer_currency_to(Wallet* other, const String &currency_id, float amount);
 
-    void add_item(const String &item_id, float amount);
-    bool remove_item(const String &item_id, float amount);
-    bool has_item(const String &item_id, float amount) const;
-    bool transfer_item_to(Wallet* other, const String &item_id, float amount);
+    bool add_item(const String &item_id, int amount);
+    bool remove_item(const String &item_id, int amount);
+    bool has_item(const String &item_id, int amount) const;
+    bool transfer_item_to(Wallet* other, const String &item_id, int amount);
 
     void _ready() override;
 

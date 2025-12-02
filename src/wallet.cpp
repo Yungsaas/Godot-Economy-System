@@ -52,6 +52,33 @@ bool Wallet::transfer_currency_to(Wallet* other, const String &id, float amount)
     return true;
 }
 
+bool Wallet::add_item(const String &id, int amount)
+{
+    int bal = balances_items[id];
+    auto economy_item = economy_manager->get_item(id);
+    if(economy_item->get_stackable())
+    {
+        if(economy_item->get_max_stack_size() < bal + amount)
+        { 
+            print_error("Tried to add economy item amount above max stack size");
+            return false;
+        }
+        bal += amount;
+        balances_items[id] = bal;
+        emit_signal("balance_changed", id, bal);
+        return true;
+    } else
+    {
+        if( bal == 0 && amount == 1)
+        {
+            balances_items[id] = 1;
+            emit_signal("balance_changed", id, bal);
+            return true;
+        }
+    }
+    return false;
+}
+
 void Wallet::_on_economy_manager_ready(Object *mgr_obj) {
     EconomyManager *mgr = Object::cast_to<EconomyManager>(mgr_obj);
     if (!mgr) 
