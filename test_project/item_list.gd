@@ -1,5 +1,7 @@
 extends ItemList
 
+var econmgr = preload("res://economy_manager.gd")
+
 func  _ready() -> void:
 	var currencies = $"../EconomyManager".get_currencies()
 	var items = $"../EconomyManager".get_items()
@@ -17,3 +19,8 @@ func  _ready() -> void:
 	for key in items:
 		var index = add_item("%s (Value: %s, Stack Limit: %s)" % [items[key].get_name(), items[key].get_base_value(), items[key].get_max_stack_size() ])
 	
+func _on_option_button_item_selected(index: int) -> void:
+	if(index == 0):
+		visible = true
+	else:
+		visible = false
