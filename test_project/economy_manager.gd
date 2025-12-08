@@ -12,7 +12,7 @@ func _ready() -> void:
 	create_currency("dia", "Diamond", 1, 20, "D")
 	
 	create_item("wood", "Wood")
-	create_item("rstools", "Rusted Tools", 2.5, true, 25)
+	create_item("rstools", "Rusted Tools", 2.5, false, 25)
 	create_item("st", "Stone", 2.5)
 
 func _on_currency_registered(currency):

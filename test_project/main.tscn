@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://hn8dh5y3yq6a"]
+[gd_scene load_steps=7 format=3 uid="uid://hn8dh5y3yq6a"]
 
 [ext_resource type="Script" uid="uid://gscsivoywwwo" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dqfg42os77oxr" path="res://economy_manager.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://pqdje8fopxb6" path="res://wallet.gd" id="2_1bvp3"]
 [ext_resource type="Script" uid="uid://citbapqhsvw3w" path="res://item_list.gd" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://bmjsbummnd4rb" path="res://option_button.gd" id="4_lquwl"]
+[ext_resource type="Script" uid="uid://dqpkub7kakf14" path="res://wallets.gd" id="6_272bh"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_ig7tw")
@@ -17,7 +19,138 @@ script = ExtResource("2_1bvp3")
 [node name="EconomyManager" type="EconomyManager" parent="."]
 script = ExtResource("2_0xm2m")
 
+[node name="Control" type="Control" parent="."]
+z_index = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OptionButton" type="OptionButton" parent="Control"]
+layout_mode = 0
+offset_right = 325.0
+offset_bottom = 20.0
+item_count = 2
+popup/item_0/text = "Economy Manager"
+popup/item_0/id = 0
+popup/item_1/text = "Wallets"
+popup/item_1/id = 1
+script = ExtResource("4_lquwl")
+
 [node name="ItemList" type="ItemList" parent="."]
-offset_right = 752.0
-offset_bottom = 348.0
+visible = false
+custom_minimum_size = Vector2(100, 100)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 36.0
+offset_right = 1150.0
+offset_bottom = 651.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("3_h2yge")
+
+[node name="Wallets" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_272bh")
+
+[node name="OptionButtonW1" type="OptionButton" parent="Wallets"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 41.0
+offset_right = 50.0
+offset_bottom = 61.0
+
+[node name="OptionButtonW2" type="OptionButton" parent="Wallets"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 1097.0
+offset_top = 41.0
+offset_right = 1129.0
+offset_bottom = 61.0
+grow_horizontal = 0
+
+[node name="ItemList_L" type="ItemList" parent="Wallets"]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 67.0
+offset_right = 503.0
+offset_bottom = 505.0
+
+[node name="ItemList_R" type="ItemList" parent="Wallets"]
+layout_mode = 0
+offset_left = 628.0
+offset_top = 66.0
+offset_right = 1146.0
+offset_bottom = 511.0
+
+[node name="AmountInput" type="TextEdit" parent="Wallets"]
+layout_mode = 0
+offset_left = 513.0
+offset_top = 141.0
+offset_right = 617.0
+offset_bottom = 170.0
+
+[node name="IDInput" type="TextEdit" parent="Wallets"]
+layout_mode = 0
+offset_left = 513.0
+offset_top = 87.0
+offset_right = 617.0
+offset_bottom = 116.0
+
+[node name="TransferMaterial" type="Button" parent="Wallets"]
+layout_mode = 0
+offset_left = 533.0
+offset_top = 281.0
+offset_right = 607.0
+offset_bottom = 358.0
+text = "Transfer
+Material
+---->"
+
+[node name="TransferButton" type="Button" parent="Wallets"]
+layout_mode = 0
+offset_left = 530.0
+offset_top = 196.0
+offset_right = 604.0
+offset_bottom = 250.0
+text = "Transfer
+Currency
+---->"
+
+[node name="LabelID" type="Label" parent="Wallets"]
+layout_mode = 0
+offset_left = 512.0
+offset_top = 64.0
+offset_right = 552.0
+offset_bottom = 113.0
+text = "ID:"
+
+[node name="LabelAm" type="Label" parent="Wallets"]
+layout_mode = 0
+offset_left = 514.0
+offset_top = 119.0
+offset_right = 581.0
+offset_bottom = 142.0
+text = "Amount:"
+
+[connection signal="item_selected" from="Control/OptionButton" to="ItemList" method="_on_option_button_item_selected"]
+[connection signal="item_selected" from="Control/OptionButton" to="Wallets" method="_on_option_button_item_selected"]
+[connection signal="item_selected" from="Wallets/OptionButtonW1" to="Wallets" method="_on_option_button_w_1_item_selected"]
+[connection signal="item_selected" from="Wallets/OptionButtonW2" to="Wallets" method="_on_option_button_w_2_item_selected"]
+[connection signal="lines_edited_from" from="Wallets/AmountInput" to="Wallets" method="_on_amount_input_lines_edited_from"]
+[connection signal="text_changed" from="Wallets/AmountInput" to="Wallets" method="_on_amount_input_text_changed"]
+[connection signal="lines_edited_from" from="Wallets/IDInput" to="Wallets" method="_on_id_input_lines_edited_from"]
+[connection signal="text_changed" from="Wallets/IDInput" to="Wallets" method="_on_id_input_text_changed"]
+[connection signal="pressed" from="Wallets/TransferMaterial" to="Wallets" method="_on_transfer_material_pressed"]
+[connection signal="pressed" from="Wallets/TransferButton" to="Wallets" method="_on_transfer_button_pressed"]
