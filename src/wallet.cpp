@@ -13,6 +13,12 @@ void Wallet::_ready() {
 void Wallet::add_currency(const String &id, float amount) {
 	if (!economy_manager)
 		bind_economy_manager_from_group();
+	auto currvar = economy_manager->get_currencies()[id];
+	if(!currvar)
+	{
+		print_error("Currency \"" + id + " not found.");
+		return;
+	}
 	float bal = balances_currencies[id];
 	bal += amount;
 	balances_currencies[id] = bal;
@@ -22,9 +28,17 @@ void Wallet::add_currency(const String &id, float amount) {
 bool Wallet::remove_currency(const String &id, float amount) {
 	if (!economy_manager)
 		bind_economy_manager_from_group();
+	
+	auto currvar = economy_manager->get_currencies()[id];
+	if(!currvar)
+	{
+		print_error("Currency \"" + id + "\" not found.");
+		return false;
+	}
+
 	float bal = balances_currencies[id];
 	if (bal < amount) {
-		print_error("Balance of ", id, " is insufficient. Required: ", amount, " Has: ", bal);
+		print_error("Balance of \"", id, "\" is insufficient. Required: ", amount, " Has: ", bal);
 		return false;
 	}
 	bal -= amount;
@@ -42,7 +56,14 @@ bool Wallet::transfer_currency_to(Wallet *other, const String &id, float amount)
 	if (!economy_manager)
 		bind_economy_manager_from_group();
 
-	if (!other->is_node_ready()) {
+	auto currvar = economy_manager->get_currencies()[id];
+	if(!currvar)
+	{
+		print_error("Currency \"" + id + "\" not found.");
+		return false;
+	}
+	if (!other->is_node_ready())
+	{
 		print_error("Other node was not ready");
 		return false;
 	}
@@ -59,12 +80,16 @@ bool Wallet::add_item(const String &id, int amount) {
 
 	int bal = balances_items[id];
 	auto economy_variant = economy_manager->get_items()[id];
-
+	if(!economy_variant)
+	{
+		print_error("Item \"" + id + "\" not found.");
+		return false;
+	}
 	auto economy_item = Object::cast_to<EconomyItem>(economy_variant);
 
 	if (economy_item->get_stackable()) {
 		if (economy_item->get_max_stack_size() < (bal + amount)) {
-			print_error("Tried to add economy item amount above max stack size");
+			print_error("Tried to add economy item amount above max stack size.");
 			return false;
 		}
 		bal += amount;
@@ -84,12 +109,18 @@ bool Wallet::add_item(const String &id, int amount) {
 bool Wallet::remove_item(const String &id, int amount) {
 	if (!economy_manager)
 		bind_economy_manager_from_group();
-	int bal = balances_items[id];
-    bal -=amount;
-	if (bal < 0) {
+	auto vb = economy_manager->get_items()[id];
+	if(!vb)
+	{
+		print_error("Item \"" + id + "\" not found");
 		return false;
 	}
-    balances_items[id] = bal;
+	int bal = balances_items[id];
+	if ((bal - amount) < 0) {
+		print_error("Balance of \"", id, "\" is insufficient. Required: ", amount, " Has: ", bal);
+		return false;
+	}
+    balances_items[id] = bal -= amount;
     emit_signal("balance_changed", id, bal);
 	return true;
 }
@@ -103,6 +134,11 @@ bool Wallet::transfer_item_to(Wallet *other, const String &id, int amount) {
     if(!economy_manager) bind_economy_manager_from_group();
 
 	auto econ_item_var = economy_manager->get_items()[id];
+	if(!econ_item_var) 
+	{
+		print_error("Item \"" + id + "\" not found");
+		return false;
+	}
 	auto econ_item = Object::cast_to<EconomyItem>(econ_item_var);
 	if (!other->is_node_ready()) {
 		print_error("Other node was not ready");

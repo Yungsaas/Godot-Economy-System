@@ -99,3 +99,11 @@ func _on_amount_input_text_changed() -> void:
 	else:
 		AmountInput = int(txt.to_int())
 	print(AmountInput)
+
+
+func _on_option_button_item_selected(index: int) -> void:
+	_update_itemlists_from_wallets(left_index, right_index)
+	if(index == 1):
+		visible = true
+	else:
+		visible = false
