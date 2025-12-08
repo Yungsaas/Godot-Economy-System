@@ -46,7 +46,10 @@ Ref<EconomyItem> EconomyManager::create_item(const String &id, const String &nam
     itm->set_id(id);
     itm->set_name(name);
     itm->set_stackable(stackable);
-    itm->set_max_stack_size(max_stack_size);
+    if(stackable)
+        itm->set_max_stack_size(max_stack_size);
+    else
+        itm->set_max_stack_size(1);
     itm->set_base_value(base_value);
 
     register_economy_item(itm);

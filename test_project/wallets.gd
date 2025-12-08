@@ -90,7 +90,6 @@ func _on_transfer_material_pressed() -> void:
 func _on_id_input_text_changed() -> void:
 	var txt = $IDInput.get_text().strip_edges()
 	IDInput = txt
-	print(IDInput)
 
 func _on_amount_input_text_changed() -> void:
 	var txt = $AmountInput.get_text()
@@ -98,7 +97,6 @@ func _on_amount_input_text_changed() -> void:
 		AmountInput = 0
 	else:
 		AmountInput = int(txt.to_int())
-	print(AmountInput)
 
 
 func _on_option_button_item_selected(index: int) -> void:
