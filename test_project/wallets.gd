@@ -105,3 +105,21 @@ func _on_option_button_item_selected(index: int) -> void:
 		visible = true
 	else:
 		visible = false
+
+
+func _on_add_material_pressed() -> void:
+	if IDInput == "" or AmountInput <= 0:
+		return
+	var left_wallet = WalletArray[left_index]
+	left_wallet.add_item(IDInput, AmountInput)
+	
+	_update_itemlists_from_wallets(left_index, right_index)
+
+
+func _on_add_currency_pressed() -> void:
+	if IDInput == "" or AmountInput <= 0:
+		return
+	var left_wallet = WalletArray[left_index]
+	left_wallet.add_currency(IDInput, AmountInput)
+	
+	_update_itemlists_from_wallets(left_index, right_index)

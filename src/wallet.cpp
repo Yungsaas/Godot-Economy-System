@@ -78,15 +78,16 @@ bool Wallet::add_item(const String &id, int amount) {
 	if (!economy_manager)
 		bind_economy_manager_from_group();
 
-	int bal = balances_items[id];
 	auto economy_variant = economy_manager->get_items()[id];
 	if(!economy_variant)
 	{
 		print_error("Item \"" + id + "\" not found.");
 		return false;
 	}
+
 	auto economy_item = Object::cast_to<EconomyItem>(economy_variant);
 
+	int bal = balances_items[id];
 	if (economy_item->get_stackable()) {
 		if (economy_item->get_max_stack_size() < (bal + amount)) {
 			print_error("Tried to add economy item amount above max stack size.");
