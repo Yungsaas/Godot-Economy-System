@@ -8,6 +8,14 @@ Trader::Trader() {}
 
 void Trader::_ready() {
 	_bind_economy_manager();
+	linked_wallet = Object::cast_to<Wallet>(find_child("Wallet"));
+    if (!linked_wallet) {
+        // no Wallet child found, create one automatically
+        linked_wallet = memnew(Wallet);
+        linked_wallet->set_name("Wallet");
+        add_child(linked_wallet);
+        print_line("Trader: No Wallet child found, one was created automatically.");
+    }
 }
 
 bool Trader::_bind_economy_manager() {
@@ -82,7 +90,7 @@ TradeRule::SupplyLevel Trader::_supply_ratio_to_level(float ratio) {
 bool Trader::_check_rule_conditions(TradeRule *rule) const {
 	if (!rule || !rule->get_enabled())
 		return false;
-	if (!linked_wallet.is_valid())
+	if (!linked_wallet)
 		return false;
 
 	const String item_id = rule->get_item_id();
@@ -140,7 +148,7 @@ bool Trader::_check_rule_conditions(TradeRule *rule) const {
 }
 
 bool Trader::_execute_rule(TradeRule *rule) {
-	if (!linked_wallet.is_valid())
+	if (!linked_wallet)
 		return false;
 
 	const String item_id = rule->get_item_id();
@@ -201,10 +209,7 @@ void Trader::evaluate_trade_rules(float delta) {
 
 void Trader::_bind_methods() {
 	// wallet
-	ClassDB::bind_method(D_METHOD("set_wallet", "wallet"), &Trader::set_wallet);
 	ClassDB::bind_method(D_METHOD("get_wallet"), &Trader::get_wallet);
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "wallet", PROPERTY_HINT_NODE_TYPE, "Wallet"),
-				 "set_wallet", "get_wallet");
 
 	// profile
 	ClassDB::bind_method(D_METHOD("set_profile", "profile"), &Trader::set_profile);

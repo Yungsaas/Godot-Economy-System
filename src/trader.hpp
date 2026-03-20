@@ -17,8 +17,7 @@ class Trader : public Node {
 public:
 	Trader();
 
-	void set_wallet(const Ref<Wallet> &w) { linked_wallet = w; }
-	Ref<Wallet> get_wallet() const { return linked_wallet; }
+	Wallet* get_wallet() const { return linked_wallet; }
 
 	void set_profile(const Ref<TraderProfile> &p);
 	Ref<TraderProfile> get_profile() const { return profile; }
@@ -51,7 +50,7 @@ private:
 	bool _accepts_item(const String &id) const;
 	bool _bind_economy_manager();
 
-	Ref<Wallet> linked_wallet;
+	Wallet* linked_wallet = nullptr;
 	Ref<TraderProfile> profile;
 	Array instance_rules;
 	Array accepted_currencies;
