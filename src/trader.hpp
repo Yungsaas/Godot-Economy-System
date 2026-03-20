@@ -8,8 +8,12 @@
 #include "godot_cpp/classes/ref.hpp"
 #include "godot_cpp/classes/wrapped.hpp"
 #include "godot_cpp/variant/dictionary.hpp"
+#include "godot_cpp/variant/node_path.hpp"
 
 using namespace godot;
+
+// forward declaration — breaks circular include with trade_market.hpp
+class TradeMarket;
 
 class Trader : public Node {
 	GDCLASS(Trader, Node)
@@ -17,7 +21,7 @@ class Trader : public Node {
 public:
 	Trader();
 
-	Wallet* get_wallet() const { return linked_wallet; }
+	Wallet *get_wallet() const { return linked_wallet; }
 
 	void set_profile(const Ref<TraderProfile> &p);
 	Ref<TraderProfile> get_profile() const { return profile; }
@@ -34,6 +38,17 @@ public:
 	Array get_accepted_items() const { return accepted_items; }
 	void set_accepted_items(const Array &v) { accepted_items = v; }
 
+	// market this trader belongs to, resolved lazily via NodePath
+	void set_market(const NodePath &p) {
+		market_path = p;
+		trade_market = nullptr;
+	}
+	NodePath get_market() const { return market_path; }
+
+	// used by TradeMarket during seller search
+	bool has_sell_rule_for(const String &item_id) const;
+	float get_sell_price_for(const String &item_id) const;
+
 	void evaluate_trade_rules(float delta);
 
 	void _ready() override;
@@ -49,12 +64,15 @@ private:
 	bool _accepts_currency(const String &id) const;
 	bool _accepts_item(const String &id) const;
 	bool _bind_economy_manager();
+	bool _bind_trade_market();
 
-	Wallet* linked_wallet = nullptr;
+	Wallet *linked_wallet = nullptr;
 	Ref<TraderProfile> profile;
 	Array instance_rules;
 	Array accepted_currencies;
 	Array accepted_items;
 	float elapsed_time = 0.0f; // accumulated for cooldown checks
 	EconomyManager *economy_manager = nullptr;
+	TradeMarket *trade_market = nullptr;
+	NodePath market_path;
 };

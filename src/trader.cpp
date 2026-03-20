@@ -1,6 +1,7 @@
 #include "trader.hpp"
 #include "godot_cpp/classes/scene_tree.hpp"
 #include "godot_cpp/core/print_string.hpp"
+#include "trade_market.hpp"
 
 using namespace godot;
 
@@ -8,14 +9,15 @@ Trader::Trader() {}
 
 void Trader::_ready() {
 	_bind_economy_manager();
+	_bind_trade_market();
 	linked_wallet = Object::cast_to<Wallet>(find_child("Wallet"));
-    if (!linked_wallet) {
-        // no Wallet child found, create one automatically
-        linked_wallet = memnew(Wallet);
-        linked_wallet->set_name("Wallet");
-        add_child(linked_wallet);
-        print_line("Trader: No Wallet child found, one was created automatically.");
-    }
+	if (!linked_wallet) {
+		// no Wallet child found, create one automatically
+		linked_wallet = memnew(Wallet);
+		linked_wallet->set_name("Wallet");
+		add_child(linked_wallet);
+		print_line("Trader: No Wallet child found, one was created automatically.");
+	}
 }
 
 bool Trader::_bind_economy_manager() {
@@ -30,8 +32,51 @@ bool Trader::_bind_economy_manager() {
 	return false;
 }
 
+bool Trader::_bind_trade_market() {
+	if (trade_market)
+		return true;
+	if (market_path.is_empty())
+		return false;
+	trade_market = get_node<TradeMarket>(market_path);
+	return trade_market != nullptr;
+}
+
 void Trader::set_profile(const Ref<TraderProfile> &p) {
 	profile = p;
+}
+
+bool Trader::has_sell_rule_for(const String &item_id) const {
+	auto scan = [&](const Array &rules) {
+		for (int i = 0; i < rules.size(); ++i) {
+			Ref<TradeRule> r = rules[i];
+			if (r.is_valid() && r->get_enabled() && r->get_action() == TradeRule::ACTION_SELL && r->get_item_id() == item_id)
+				return true;
+		}
+		return false;
+	};
+	if (profile.is_valid() && scan(profile->get_rules()))
+		return true;
+	return scan(instance_rules);
+}
+
+float Trader::get_sell_price_for(const String &item_id) const {
+	auto scan = [&](const Array &rules) -> float {
+		for (int i = 0; i < rules.size(); ++i) {
+			Ref<TradeRule> r = rules[i];
+			if (r.is_valid() && r->get_enabled() && r->get_action() == TradeRule::ACTION_SELL && r->get_item_id() == item_id) {
+				float min_price = r->get_sell_price_min();
+				// no price set on rule, fall back to base_value
+				return min_price >= 0.0f ? min_price : _get_market_price(item_id);
+			}
+		}
+		return -1.0f;
+	};
+	float p = -1.0f;
+	if (profile.is_valid())
+		p = scan(profile->get_rules());
+	if (p < 0.0f)
+		p = scan(instance_rules);
+	return p;
 }
 
 bool Trader::_accepts_currency(const String &id) const {
@@ -73,9 +118,8 @@ float Trader::_get_market_price(const String &item_id) const {
 	if (item_var.get_type() == Variant::NIL)
 		return 0.0f;
 	// falls back to base_value until dynamic pricing is added to EconomyManager
-	if (EconomyItem *item = Object::cast_to<EconomyItem>(item_var)) {
+	if (EconomyItem *item = Object::cast_to<EconomyItem>(item_var))
 		return item->get_base_value();
-	}
 	return 0.0f;
 }
 
@@ -130,12 +174,15 @@ bool Trader::_check_rule_conditions(TradeRule *rule) const {
 	if (surplus_thresh >= 0 && current_stock < surplus_thresh)
 		return false;
 
-	// supply level, stub until EconomyManager exposes get_item_supply_ratio()
-	// TradeRule::SupplyLevel required = rule->get_required_supply_level();
-	// if (required != TradeRule::SUPPLY_ANY && economy_manager) {
-	//     float ratio = economy_manager->get_item_supply_ratio(item_id);
-	//     if (_supply_ratio_to_level(ratio) != required) return false;
-	// }
+	// supply level — requires a TradeMarket to be assigned
+	TradeRule::SupplyLevel required = rule->get_required_supply_level();
+	if (required != TradeRule::SUPPLY_ANY) {
+		if (!trade_market)
+			return false;
+		TradeRule::SupplyLevel actual = trade_market->get_supply_level(item_id);
+		if (actual != required)
+			return false;
+	}
 
 	// cooldown, skip if never fired or cooldown is zero
 	float cooldown = rule->get_cooldown_seconds();
@@ -157,16 +204,28 @@ bool Trader::_execute_rule(TradeRule *rule) {
 	float price = _get_market_price(item_id) * (float)amount;
 
 	if (rule->get_action() == TradeRule::ACTION_BUY) {
-		if (!linked_wallet->has_currency(currency_id, price)) {
-			print_line("Trader: Insufficient funds for rule '", rule->get_rule_name(), "'");
-			return false;
-		}
-		if (!linked_wallet->remove_currency(currency_id, price))
-			return false;
-		if (!linked_wallet->add_item(item_id, amount)) {
-			// rollback, item add failed (e.g. stack full)
-			linked_wallet->add_currency(currency_id, price);
-			return false;
+		if (_bind_trade_market()) {
+			// source from best seller in the market
+			Trader *seller = trade_market->find_best_seller(item_id, currency_id, amount);
+			if (!seller) {
+				print_line("Trader: No seller found in market for '", item_id, "'");
+				return false;
+			}
+			if (!trade_market->execute_trade(this, seller, item_id, currency_id, amount))
+				return false;
+		} else {
+			// no market assigned, adjust local wallet directly
+			if (!linked_wallet->has_currency(currency_id, price)) {
+				print_line("Trader: Insufficient funds for rule '", rule->get_rule_name(), "'");
+				return false;
+			}
+			if (!linked_wallet->remove_currency(currency_id, price))
+				return false;
+			if (!linked_wallet->add_item(item_id, amount)) {
+				// rollback, item add failed (e.g. stack full)
+				linked_wallet->add_currency(currency_id, price);
+				return false;
+			}
 		}
 		emit_signal("rule_executed", rule->get_rule_name(), Variant(TradeRule::ACTION_BUY), item_id, amount);
 	} else {
@@ -234,6 +293,14 @@ void Trader::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_accepted_items", "items"), &Trader::set_accepted_items);
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "accepted_items", PROPERTY_HINT_ARRAY_TYPE, "String"),
 				 "set_accepted_items", "get_accepted_items");
+
+	// market
+	ClassDB::bind_method(D_METHOD("set_market", "path"), &Trader::set_market);
+	ClassDB::bind_method(D_METHOD("get_market"), &Trader::get_market);
+	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "market", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "TradeMarket"),
+				 "set_market", "get_market");
+	ClassDB::bind_method(D_METHOD("has_sell_rule_for", "item_id"), &Trader::has_sell_rule_for);
+	ClassDB::bind_method(D_METHOD("get_sell_price_for", "item_id"), &Trader::get_sell_price_for);
 
 	// rule engine
 	ClassDB::bind_method(D_METHOD("evaluate_trade_rules", "delta"), &Trader::evaluate_trade_rules);

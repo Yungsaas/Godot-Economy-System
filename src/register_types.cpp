@@ -1,6 +1,7 @@
 #include "currency.hpp"
 #include "economy_item.hpp"
 #include "economy_manager.hpp"
+#include "trade_market.hpp"
 #include "trade_rule.hpp"
 #include "trader.hpp"
 #include "trader_profile.hpp"
@@ -21,11 +22,10 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 	GDREGISTER_CLASS(EconomyItem)
 	GDREGISTER_CLASS(EconomyManager)
 	GDREGISTER_CLASS(Wallet)
-
-	// Rule-based trading system
 	GDREGISTER_CLASS(TradeRule)
 	GDREGISTER_CLASS(TraderProfile)
 	GDREGISTER_CLASS(Trader)
+	GDREGISTER_CLASS(TradeMarket)
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {
