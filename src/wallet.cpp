@@ -14,8 +14,7 @@ void Wallet::add_currency(const String &id, float amount) {
 	if (!economy_manager)
 		bind_economy_manager_from_group();
 	auto currvar = economy_manager->get_currencies()[id];
-	if(!currvar)
-	{
+	if (!currvar) {
 		print_error("Currency \"" + id + " not found.");
 		return;
 	}
@@ -28,10 +27,9 @@ void Wallet::add_currency(const String &id, float amount) {
 bool Wallet::remove_currency(const String &id, float amount) {
 	if (!economy_manager)
 		bind_economy_manager_from_group();
-	
+
 	auto currvar = economy_manager->get_currencies()[id];
-	if(!currvar)
-	{
+	if (!currvar) {
 		print_error("Currency \"" + id + "\" not found.");
 		return false;
 	}
@@ -57,13 +55,11 @@ bool Wallet::transfer_currency_to(Wallet *other, const String &id, float amount)
 		bind_economy_manager_from_group();
 
 	auto currvar = economy_manager->get_currencies()[id];
-	if(!currvar)
-	{
+	if (!currvar) {
 		print_error("Currency \"" + id + "\" not found.");
 		return false;
 	}
-	if (!other->is_node_ready())
-	{
+	if (!other->is_node_ready()) {
 		print_error("Other node was not ready");
 		return false;
 	}
@@ -79,8 +75,7 @@ bool Wallet::add_item(const String &id, int amount) {
 		bind_economy_manager_from_group();
 
 	auto economy_variant = economy_manager->get_items()[id];
-	if(!economy_variant)
-	{
+	if (!economy_variant) {
 		print_error("Item \"" + id + "\" not found.");
 		return false;
 	}
@@ -111,8 +106,7 @@ bool Wallet::remove_item(const String &id, int amount) {
 	if (!economy_manager)
 		bind_economy_manager_from_group();
 	auto vb = economy_manager->get_items()[id];
-	if(!vb)
-	{
+	if (!vb) {
 		print_error("Item \"" + id + "\" not found");
 		return false;
 	}
@@ -121,8 +115,8 @@ bool Wallet::remove_item(const String &id, int amount) {
 		print_error("Balance of \"", id, "\" is insufficient. Required: ", amount, " Has: ", bal);
 		return false;
 	}
-    balances_items[id] = bal -= amount;
-    emit_signal("balance_changed", id, bal);
+	balances_items[id] = bal -= amount;
+	emit_signal("balance_changed", id, bal);
 	return true;
 }
 
@@ -132,11 +126,11 @@ bool Wallet::has_item(const String &id, int amount) const {
 }
 
 bool Wallet::transfer_item_to(Wallet *other, const String &id, int amount) {
-    if(!economy_manager) bind_economy_manager_from_group();
+	if (!economy_manager)
+		bind_economy_manager_from_group();
 
 	auto econ_item_var = economy_manager->get_items()[id];
-	if(!econ_item_var) 
-	{
+	if (!econ_item_var) {
 		print_error("Item \"" + id + "\" not found");
 		return false;
 	}
@@ -202,7 +196,7 @@ void Wallet::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("has_currency", "currency", "amount"), &Wallet::has_currency);
 	ClassDB::bind_method(D_METHOD("get_currencies"), &Wallet::get_currencies);
 	ClassDB::bind_method(D_METHOD("get_currency_balance", "currency"), &Wallet::get_currency_balance_of);
-	
+
 	/* Items */
 	ClassDB::bind_method(D_METHOD("add_item", "item", "amount"), &Wallet::add_item);
 	ClassDB::bind_method(D_METHOD("remove_item", "item", "amount"), &Wallet::remove_item);

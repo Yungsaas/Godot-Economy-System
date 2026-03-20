@@ -14,10 +14,10 @@
 // Include necessary Godot headers. If you ever want to use a Godot class, you need to include its header file here
 // By holding CTRL and clicking on it, you will see the class declaration and all the functions that it has
 // If you want to see implementations you can always check godot's source code on GitHub
-#include <godot_cpp/variant/typed_array.hpp> // Added for Godot arrays
 #include <godot_cpp/classes/node.hpp> // Added for Node
 #include <godot_cpp/classes/packed_scene.hpp> // Added for PackedScene
 #include <godot_cpp/classes/resource.hpp> // Added for Resource
+#include <godot_cpp/variant/typed_array.hpp> // Added for Godot arrays
 // If you are using the Clangd language server and using my setup script to compile,
 // it will automatically suggest the correct headers to include when you type a class name (because of the generated compile_commands.json file)
 
@@ -70,12 +70,12 @@ class ItemData : public Resource { // Right now inheriting from Resource, just a
 	// and as a second argument always pass the class you are inheriting from
 	GDCLASS(ItemData, Resource)
 
-// WARNING: Always have this when making custom classes that you want visible in your Godot project
-// In this _bind_methods() function you will bind your methods to Godot, so they can be called from GDScript or other languages
+	// WARNING: Always have this when making custom classes that you want visible in your Godot project
+	// In this _bind_methods() function you will bind your methods to Godot, so they can be called from GDScript or other languages
 protected:
 	static void _bind_methods();
 
-// For methods and properties that never get accessed by other C++ classes, write them under private, otherwise write them under public
+	// For methods and properties that never get accessed by other C++ classes, write them under private, otherwise write them under public
 private:
 	// Always set default values to avoid hard to track bugs. Especially when dealing with custom resource classes.
 	// If you do not set default values to a Resource, and then try to use the ResourceSaver/ ResourceLoaded you will get undefined behavior
@@ -133,7 +133,7 @@ private:
 	// Understanding the difference between pointers, references and the const keyword is valuable knowledge
 	// I might make a tutorial on the topic if people are interested
 
-};  // Classes end with ";"
+}; // Classes end with ";"
 
 // WARNING: Each time you make a change, you should always recompile the project
 // You can always use my setup script for that or just run "scons compiledb=yes" in the terminal

@@ -82,7 +82,6 @@ func _on_max_stack_size_text_changed() -> void:
 	else:
 		max_stack_size = int(txt.to_int())
 
-
 func _on_check_box_pressed() -> void:
 	if(stackable):
 		stackable = false

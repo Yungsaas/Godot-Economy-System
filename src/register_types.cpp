@@ -1,7 +1,9 @@
-// Include your classes, that you want to expose to Godot
 #include "currency.hpp"
 #include "economy_item.hpp"
 #include "economy_manager.hpp"
+#include "trade_rule.hpp"
+#include "trader.hpp"
+#include "trader_profile.hpp"
 #include "wallet.hpp"
 
 #include <gdextension_interface.h>
@@ -11,35 +13,35 @@
 
 using namespace godot;
 
-void initialize_gdextension_types(ModuleInitializationLevel p_level)
-{
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+void initialize_gdextension_types(ModuleInitializationLevel p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
 		return;
-	}
 
-	// Register your classes here, so they are available in the Godot editor and engine
 	GDREGISTER_CLASS(Currency)
 	GDREGISTER_CLASS(EconomyItem)
 	GDREGISTER_CLASS(EconomyManager)
 	GDREGISTER_CLASS(Wallet)
+
+	// Rule-based trading system
+	GDREGISTER_CLASS(TradeRule)
+	GDREGISTER_CLASS(TraderProfile)
+	GDREGISTER_CLASS(Trader)
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
 		return;
-	}
 }
 
-extern "C"
-{
-	// Initialization
-	GDExtensionBool GDE_EXPORT economyextension_init(GDExtensionInterfaceGetProcAddress p_get_proc_address, GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization)
-	{
-		GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
-		init_obj.register_initializer(initialize_gdextension_types);
-		init_obj.register_terminator(uninitialize_gdextension_types);
-		init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
-
-		return init_obj.init();
-	}
+extern "C" {
+GDExtensionBool GDE_EXPORT economyextension_init(
+		GDExtensionInterfaceGetProcAddress p_get_proc_address,
+		GDExtensionClassLibraryPtr p_library,
+		GDExtensionInitialization *r_initialization) {
+	GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
+	init_obj.register_initializer(initialize_gdextension_types);
+	init_obj.register_terminator(uninitialize_gdextension_types);
+	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+	return init_obj.init();
+}
 }

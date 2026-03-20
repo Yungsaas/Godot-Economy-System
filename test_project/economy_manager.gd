@@ -7,10 +7,10 @@ func _ready() -> void:
 	
 	connect("currency_registered", Callable(self, "_on_currency_registered"))
 	connect("item_registered", Callable(self, "_on_item_registered"))
-	
+
 	create_currency("gold", "Gold Coins")
 	create_currency("dia", "Diamond", 1, 20, "D")
-	
+
 	create_item("wood", "Wood")
 	create_item("rstools", "Rusted Tools", 2.5, false, 25)
 	create_item("st", "Stone", 2.5)

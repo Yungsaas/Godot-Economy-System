@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://hn8dh5y3yq6a"]
+[gd_scene load_steps=9 format=3 uid="uid://hn8dh5y3yq6a"]
 
 [ext_resource type="Script" uid="uid://gscsivoywwwo" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dqfg42os77oxr" path="res://economy_manager.gd" id="2_0xm2m"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://dmokucg2ej7mc" path="res://economy_manager_page.gd" id="4_272bh"]
 [ext_resource type="Script" uid="uid://bmjsbummnd4rb" path="res://option_button.gd" id="4_lquwl"]
 [ext_resource type="Script" uid="uid://dqpkub7kakf14" path="res://wallets.gd" id="6_272bh"]
+[ext_resource type="Script" uid="uid://dhnx68gkpxshi" path="res://trader.gd" id="8_5vw27"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_ig7tw")
@@ -211,6 +212,7 @@ popup/item_1/id = 1
 script = ExtResource("4_lquwl")
 
 [node name="Wallets" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -318,6 +320,9 @@ offset_right = 623.0
 offset_bottom = 429.0
 text = "Add Currency
 <----"
+
+[node name="Trader" type="Node" parent="."]
+script = ExtResource("8_5vw27")
 
 [connection signal="pressed" from="EconomyManagerPage/AddEconButton" to="EconomyManagerPage" method="_on_add_econ_button_pressed"]
 [connection signal="text_changed" from="EconomyManagerPage/IDInput" to="EconomyManagerPage" method="_on_id_input_text_changed"]

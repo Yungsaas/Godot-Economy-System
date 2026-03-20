@@ -47,7 +47,7 @@ void ItemData::spawn_stuff() {
 
 	// Because my_node is a pointer to a Node, you can use the arrow operator (->) to access its methods and properties
 	my_node->set_name(name); // This is how you call methods on the node, similar to "my_node.name = name" in GDScript
-	
+
 	// WARNING: this won't work on our Resource class, we need to inherit from Node instead and place the node in the scene tree, or we will get crashes, but it's good knowledge
 	//get_local_scene()->add_child(my_node); // This is how you add a node to the current scene tree, similar to "add_child(node)" in GDScript
 
@@ -73,8 +73,7 @@ void ItemData::spawn_stuff() {
 }
 
 void ItemData::spawn_custom_scene(Ref<PackedScene> p_scene) {
-
-	Node *instance = nullptr;  // Never leave default pointers to be empty, always initialize to nullptr
+	Node *instance = nullptr; // Never leave default pointers to be empty, always initialize to nullptr
 	// Rule: Before trying to access some argument (especially a resource)
 	// be defensive about it and check if the object is actually usable
 	if (p_scene.is_valid()) { // Check if live, usable object
@@ -125,7 +124,7 @@ void ItemData::spawn_custom_scene(Ref<PackedScene> p_scene) {
 		print_line("Valid instance was given!");
 		// WARNING: This code won't work, we need to be inheriting from Node, and also it needs to be placed in the actual scene
 		//get_local_scene()->add_child(instance);
-	}else{
+	} else {
 		print_line("You did NOT give a valid instance!");
 	}
 }
@@ -213,22 +212,22 @@ void ItemData::modify_all_node_names_wrong_way(TypedArray<Node> arr, String new_
 }
 
 TypedArray<int> ItemData::create_10k_numbers(int min, int max) {
-    TypedArray<int> arr;
-    arr.resize(10000); // Pre-allocate exactly 10k slots for optimal performance (avoids reallocations during insertion)
+	TypedArray<int> arr;
+	arr.resize(10000); // Pre-allocate exactly 10k slots for optimal performance (avoids reallocations during insertion)
 
 	// RandomNumberGenerator also inherits from RefCounted
 	// which means we need to wrap it in Ref<>   -> Always check classes from what they inherit before using them to avoid memory leaks and weird bugs
 	// A good workflow might also be finding the docs of the class inside your godot editor to check for the functions and properties you need
 	// and then just fixing the syntax for C++
 
-    Ref<RandomNumberGenerator> rng = memnew(RandomNumberGenerator); // Use a local RNG instance for better performance/isolation
-    rng->randomize(); // Seed it for true randomness (optional but good practice; skips if you want reproducibility)
+	Ref<RandomNumberGenerator> rng = memnew(RandomNumberGenerator); // Use a local RNG instance for better performance/isolation
+	rng->randomize(); // Seed it for true randomness (optional but good practice; skips if you want reproducibility)
 
-    for (int i = 0; i < 10000; i++) {
-        arr[i] = rng->randi_range(min, max); // Generate inclusive random int between min and max
-    }
+	for (int i = 0; i < 10000; i++) {
+		arr[i] = rng->randi_range(min, max); // Generate inclusive random int between min and max
+	}
 
-    return arr;
+	return arr;
 }
 
 void ItemData::_bind_methods() {
@@ -264,5 +263,4 @@ void ItemData::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("modify_all_node_names_wrong_way", "arr", "new_name"), &ItemData::modify_all_node_names_wrong_way);
 
 	ClassDB::bind_method(D_METHOD("create_10k_numbers", "min", "max"), &ItemData::create_10k_numbers);
-
 }
