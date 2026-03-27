@@ -44,5 +44,5 @@ protected:
 private:
 	Dictionary balances_items;
 	Dictionary balances_currencies;
-	EconomyManager *economy_manager;
+	EconomyManager *economy_manager = nullptr;
 };

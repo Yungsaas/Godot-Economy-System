@@ -1,7 +1,8 @@
-[gd_scene load_steps=20 format=3 uid="uid://hn8dh5y3yq6a"]
+[gd_scene load_steps=21 format=3 uid="uid://hn8dh5y3yq6a"]
 
 [ext_resource type="Script" uid="uid://gscsivoywwwo" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://co4av3paqb3om" path="res://NPC.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://bqkc7wy1xleem" path="res://trade_line_layer.gd" id="2_lquwl"]
 [ext_resource type="Script" uid="uid://cpa5tw4scuxsq" path="res://Player.gd" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://bmysfcqrxvble" path="res://UI.gd" id="4_1bvp3"]
 
@@ -114,8 +115,10 @@ script = ExtResource("1_ig7tw")
 [node name="EconomyManager" type="EconomyManager" parent="."]
 
 [node name="TradeMarket" type="TradeMarket" parent="."]
+traders = [NodePath("../World/Trader_A/Trader"), NodePath("../World/Trader_B/Trader"), NodePath("../World/Trader_C/Trader"), NodePath("../World/Trader_D/Trader"), NodePath("../World/Trader_E/Trader")]
 
 [node name="TradeLineLayer" type="Node2D" parent="."]
+script = ExtResource("2_lquwl")
 
 [node name="World" type="Node2D" parent="."]
 
@@ -123,7 +126,7 @@ script = ExtResource("1_ig7tw")
 position = Vector2(-300, -150)
 script = ExtResource("2_0xm2m")
 trader_label = "Trader A"
-starting_gold = 80
+starting_gold = 80.0
 starting_wheat = 20
 
 [node name="Trader" type="Trader" parent="World/Trader_A"]
@@ -132,8 +135,6 @@ accepted_currencies = ["gold"]
 accepted_items = ["wheat", "iron"]
 market = NodePath("../../../TradeMarket")
 
-[node name="Wallet2" type="Wallet" parent="World/Trader_A/Trader"]
-
 [node name="Label" type="Label" parent="World/Trader_A"]
 offset_right = 40.0
 offset_bottom = 23.0
@@ -141,7 +142,7 @@ offset_bottom = 23.0
 [node name="InteractArea" type="Area2D" parent="World/Trader_A"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Trader_A/InteractArea"]
-scale = Vector2(19.935, 19.935)
+scale = Vector2(6.345, 6.345)
 shape = SubResource("CircleShape2D_ig7tw")
 debug_color = Color(0.772549, 0.596078, 0.823529, 0.231373)
 
@@ -151,7 +152,7 @@ script = ExtResource("2_0xm2m")
 color = Color(0.307133, 0.685718, 0.510001, 1)
 trader_label = "Trader B"
 tick_rate = 2.0
-starting_gold = 80
+starting_gold = 80.0
 starting_iron = 20
 
 [node name="Trader" type="Trader" parent="World/Trader_B"]
@@ -160,8 +161,6 @@ accepted_currencies = ["gold"]
 accepted_items = ["gems", "iron"]
 market = NodePath("../../../TradeMarket")
 
-[node name="Wallet2" type="Wallet" parent="World/Trader_B/Trader"]
-
 [node name="Label" type="Label" parent="World/Trader_B"]
 offset_right = 40.0
 offset_bottom = 23.0
@@ -169,7 +168,7 @@ offset_bottom = 23.0
 [node name="InteractArea" type="Area2D" parent="World/Trader_B"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Trader_B/InteractArea"]
-scale = Vector2(19.935, 19.935)
+scale = Vector2(6.345, 6.345)
 shape = SubResource("CircleShape2D_ig7tw")
 debug_color = Color(0.772549, 0.596078, 0.823529, 0.231373)
 
@@ -179,7 +178,7 @@ script = ExtResource("2_0xm2m")
 color = Color(0.712266, 0.535846, 0.672237, 1)
 trader_label = "Trader C"
 tick_rate = 4.0
-starting_gold = 80
+starting_gold = 80.0
 starting_gems = 10
 
 [node name="Trader" type="Trader" parent="World/Trader_C"]
@@ -188,8 +187,6 @@ accepted_currencies = ["gold"]
 accepted_items = ["wheat", "gems"]
 market = NodePath("../../../TradeMarket")
 
-[node name="Wallet2" type="Wallet" parent="World/Trader_C/Trader"]
-
 [node name="Label" type="Label" parent="World/Trader_C"]
 offset_right = 40.0
 offset_bottom = 23.0
@@ -197,7 +194,7 @@ offset_bottom = 23.0
 [node name="InteractArea" type="Area2D" parent="World/Trader_C"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Trader_C/InteractArea"]
-scale = Vector2(19.935, 19.935)
+scale = Vector2(6.345, 6.345)
 shape = SubResource("CircleShape2D_ig7tw")
 debug_color = Color(0.772549, 0.596078, 0.823529, 0.231373)
 
@@ -207,7 +204,7 @@ script = ExtResource("2_0xm2m")
 color = Color(0.825968, 0.336356, 1, 1)
 trader_label = "Trader D"
 tick_rate = 7.0
-starting_gold = 120
+starting_gold = 140.0
 starting_wheat = 10
 starting_iron = 10
 
@@ -217,8 +214,6 @@ accepted_currencies = ["gold"]
 accepted_items = ["wheat", "iron"]
 market = NodePath("../../../TradeMarket")
 
-[node name="Wallet2" type="Wallet" parent="World/Trader_D/Trader"]
-
 [node name="Label" type="Label" parent="World/Trader_D"]
 offset_right = 40.0
 offset_bottom = 23.0
@@ -226,7 +221,7 @@ offset_bottom = 23.0
 [node name="InteractArea" type="Area2D" parent="World/Trader_D"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Trader_D/InteractArea"]
-scale = Vector2(19.935, 19.935)
+scale = Vector2(6.345, 6.345)
 shape = SubResource("CircleShape2D_ig7tw")
 debug_color = Color(0.772549, 0.596078, 0.823529, 0.231373)
 
@@ -236,7 +231,7 @@ script = ExtResource("2_0xm2m")
 color = Color(0.847016, 0.503968, 0.215804, 1)
 trader_label = "Trader E"
 tick_rate = 3.5
-starting_gold = 60
+starting_gold = 60.0
 starting_gems = 8
 
 [node name="Trader" type="Trader" parent="World/Trader_E"]
@@ -246,8 +241,6 @@ accepted_currencies = ["gold"]
 accepted_items = ["gems"]
 market = NodePath("../../../TradeMarket")
 
-[node name="Wallet2" type="Wallet" parent="World/Trader_E/Trader"]
-
 [node name="Label" type="Label" parent="World/Trader_E"]
 offset_right = 40.0
 offset_bottom = 23.0
@@ -255,20 +248,20 @@ offset_bottom = 23.0
 [node name="InteractArea" type="Area2D" parent="World/Trader_E"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Trader_E/InteractArea"]
-scale = Vector2(19.935, 19.935)
+scale = Vector2(6.345, 6.345)
 shape = SubResource("CircleShape2D_ig7tw")
 debug_color = Color(0.772549, 0.596078, 0.823529, 0.231373)
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="World"]
+[node name="Player" type="CharacterBody2D" parent="World"]
 script = ExtResource("3_h2yge")
 
-[node name="Trader" type="Trader" parent="World/CharacterBody2D"]
+[node name="Trader" type="Trader" parent="World/Player"]
 
-[node name="Wallet2" type="Wallet" parent="World/CharacterBody2D/Trader"]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/CharacterBody2D"]
-scale = Vector2(18, 18)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/Player"]
+scale = Vector2(3.215, 3.215)
 shape = SubResource("CircleShape2D_0xm2m")
+
+[node name="Camera2D" type="Camera2D" parent="World/Player"]
 
 [node name="UI" type="CanvasLayer" parent="."]
 script = ExtResource("4_1bvp3")
@@ -288,8 +281,9 @@ text = "Wallets"
 layout_mode = 2
 
 [node name="LogPanel" type="PanelContainer" parent="UI"]
-offset_right = 76.0
-offset_bottom = 40.0
+offset_left = 500.0
+offset_right = 600.0
+offset_bottom = 100.0
 
 [node name="VBox" type="VBoxContainer" parent="UI/LogPanel"]
 layout_mode = 2
@@ -299,14 +293,20 @@ layout_mode = 2
 text = "Trade Log"
 
 [node name="LogScroll" type="ScrollContainer" parent="UI/LogPanel/VBox"]
+clip_contents = false
 layout_mode = 2
+follow_focus = true
 
 [node name="LogList" type="VBoxContainer" parent="UI/LogPanel/VBox/LogScroll"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="ShopPanel" type="PanelContainer" parent="UI"]
-offset_right = 50.0
-offset_bottom = 62.0
+visible = false
+offset_left = 500.0
+offset_top = 300.0
+offset_right = 550.0
+offset_bottom = 362.0
 
 [node name="VBox" type="VBoxContainer" parent="UI/ShopPanel"]
 layout_mode = 2
@@ -317,13 +317,16 @@ layout_mode = 2
 [node name="ShopItems" type="VBoxContainer" parent="UI/ShopPanel/VBox"]
 layout_mode = 2
 
-[node name="CloseButton" type="Button" parent="UI/ShopPanel/VBox"]
+[node name="CloseBtn" type="Button" parent="UI/ShopPanel/VBox"]
 layout_mode = 2
 text = "Close"
 
 [node name="InteractHint" type="Label" parent="UI"]
-offset_right = 121.0
-offset_bottom = 23.0
+visible = false
+offset_left = 766.0
+offset_top = 152.0
+offset_right = 887.0
+offset_bottom = 175.0
 text = "Press E to trade"
 
 [connection signal="body_entered" from="World/Trader_A/InteractArea" to="World/Trader_A" method="_on_interact_area_body_entered"]

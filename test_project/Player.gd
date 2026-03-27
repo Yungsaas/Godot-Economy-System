@@ -21,6 +21,8 @@ var _nearby_npc = null  # holds the NPC node the player is standing near
 
 func _ready():
 	add_to_group("player")
+	await get_tree().process_frame
+	await get_tree().process_frame
 	# Give the player a starting balance so they can actually buy things
 	$Trader/Wallet.add_currency("gold", 100.0)
 	queue_redraw()
@@ -31,16 +33,16 @@ func _draw():
 
 func _physics_process(_delta):
 	var dir = Vector2.ZERO
-	if Input.is_action_pressed("ui_right"): dir.x += 1
-	if Input.is_action_pressed("ui_left"):  dir.x -= 1
-	if Input.is_action_pressed("ui_down"):  dir.y += 1
-	if Input.is_action_pressed("ui_up"):    dir.y -= 1
+	if Input.is_action_pressed("player_right"): dir.x += 1
+	if Input.is_action_pressed("player_left"):  dir.x -= 1
+	if Input.is_action_pressed("player_down"):  dir.y += 1
+	if Input.is_action_pressed("player_up"):    dir.y -= 1
 
 	velocity = dir.normalized() * speed
 	move_and_slide()
 
 func _input(event):
-	if event.is_action_pressed("ui_accept") and _nearby_npc:
+	if event.is_action_pressed("ui_input") and _nearby_npc:
 		_nearby_npc.open_shop()
 
 func set_nearby_npc(npc):

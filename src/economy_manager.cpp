@@ -61,7 +61,7 @@ void EconomyManager::register_economy_item(const Ref<EconomyItem> &econ_item) {
 }
 
 Ref<EconomyItem> EconomyManager::get_item(const String &id) {
-	auto v = currencies.find_key(id);
+	auto v = items.find_key(id); // was: currencies
 	return v;
 }
 
