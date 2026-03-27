@@ -1,25 +1,27 @@
+# Main.gd
+# Attach to a Node2D root node named "Main"
+# Children needed in the scene tree:
+#   - EconomyManager (your EconomyManager node)
+#   - TradeMarket (your TradeMarket node)
+#   - World (Node2D)
+#   - UI (CanvasLayer) -> see UI.gd
+#   - TradeLineLayer (Node2D, for drawing trade lines on top)
+
 extends Node2D
 
-var IDInput : String
-var AmountInput : int
+func _ready():
+	# Register currencies
+	var economy = $EconomyManager
+	economy.create_currency("gold", "Gold", 2, 1.0, "G")
 
-func _ready() -> void:
-	test_plugin_functionality()
-	pass
+	# Register items
+	economy.create_item("wheat", "Wheat", 2.0, true, 99)
+	economy.create_item("iron",  "Iron",  5.0, true, 99)
+	economy.create_item("gems",  "Gems",  12.0, true, 99)
 
-func test_plugin_functionality()->void:
-	#currency test
-	print("Currency Test:")
-	$Wallet1.add_currency("gold", 20)
-	$Wallet2.add_currency("gold", 20)
-	
-	#item test
-	print("Item Test:")
-	$Wallet1.add_item("wood", 5)
-	
-	print()
-	print("Plan execution should look like this (currently not automated, needs solution, possibly rule based decision making):")
-	$Wallet2.add_item("st", 5)
-	$Wallet2.transfer_item_to($Wallet1, "st", 2)
-	$Wallet1.transfer_currency_to($Wallet2, "gold", 5)
-	pass
+	# Connect TradeMarket signal to UI log
+	$TradeMarket.trade_executed.connect(_on_trade_executed)
+
+func _on_trade_executed(buyer, seller, item_id, amount, price):
+	$UI.add_log_entry(buyer.name, seller.name, item_id, amount, price)
+	$TradeLineLayer.show_trade_line(buyer.global_position, seller.global_position, item_id, amount)

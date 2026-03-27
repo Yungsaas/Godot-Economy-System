@@ -19,10 +19,6 @@ config/icon="res://icon.svg"
 
 project/assembly_name="Test_Project"
 
-[layer_names]
-
-2d_physics/layer_1="world"
-
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
