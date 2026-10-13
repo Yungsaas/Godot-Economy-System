@@ -129,7 +129,7 @@ trader_label = "Trader A"
 starting_gold = 80.0
 starting_wheat = 20
 
-[node name="Trader" type="Trader" parent="World/Trader_A"]
+[node name="Trader" type="RuleTrader" parent="World/Trader_A"]
 instance_rules = [SubResource("TradeRule_lquwl"), SubResource("TradeRule_1bvp3")]
 accepted_currencies = ["gold"]
 accepted_items = ["wheat", "iron"]
@@ -155,7 +155,7 @@ tick_rate = 2.0
 starting_gold = 80.0
 starting_iron = 20
 
-[node name="Trader" type="Trader" parent="World/Trader_B"]
+[node name="Trader" type="RuleTrader" parent="World/Trader_B"]
 instance_rules = [SubResource("TradeRule_7mycd"), SubResource("TradeRule_272bh")]
 accepted_currencies = ["gold"]
 accepted_items = ["gems", "iron"]
@@ -181,7 +181,7 @@ tick_rate = 4.0
 starting_gold = 80.0
 starting_gems = 10
 
-[node name="Trader" type="Trader" parent="World/Trader_C"]
+[node name="Trader" type="RuleTrader" parent="World/Trader_C"]
 instance_rules = [SubResource("TradeRule_5vw27"), SubResource("TradeRule_kek77")]
 accepted_currencies = ["gold"]
 accepted_items = ["wheat", "gems"]
@@ -208,7 +208,7 @@ starting_gold = 140.0
 starting_wheat = 10
 starting_iron = 10
 
-[node name="Trader" type="Trader" parent="World/Trader_D"]
+[node name="Trader" type="RuleTrader" parent="World/Trader_D"]
 instance_rules = [SubResource("TradeRule_4c57u"), SubResource("TradeRule_efxa6"), SubResource("TradeRule_dg77c"), SubResource("TradeRule_ycdy4")]
 accepted_currencies = ["gold"]
 accepted_items = ["wheat", "iron"]
@@ -234,7 +234,7 @@ tick_rate = 3.5
 starting_gold = 60.0
 starting_gems = 8
 
-[node name="Trader" type="Trader" parent="World/Trader_E"]
+[node name="Trader" type="RuleTrader" parent="World/Trader_E"]
 profile = SubResource("TraderProfile_1bvp3")
 instance_rules = [SubResource("TradeRule_w48qg"), SubResource("TradeRule_vivmo")]
 accepted_currencies = ["gold"]
@@ -255,7 +255,7 @@ debug_color = Color(0.772549, 0.596078, 0.823529, 0.231373)
 [node name="Player" type="CharacterBody2D" parent="World"]
 script = ExtResource("3_h2yge")
 
-[node name="Trader" type="Trader" parent="World/Player"]
+[node name="Trader" type="RuleTrader" parent="World/Player"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Player"]
 scale = Vector2(3.215, 3.215)

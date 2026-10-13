@@ -48,5 +48,5 @@ func _input(event):
 func set_nearby_npc(npc):
 	_nearby_npc = npc
 
-func get_trader() -> Trader:
+func get_trader() -> RuleTrader:
 	return $Trader

@@ -10,4 +10,5 @@ func _ready():
 
 func _on_trade_executed(buyer, seller, item_id, amount, price):
 	$UI.add_log_entry(buyer.name, seller.name, item_id, amount, price)
+	$UI.refresh_wallet_display()
 	$TradeLineLayer.show_trade_line(buyer.get_parent().global_position, seller.get_parent().global_position, item_id, amount)

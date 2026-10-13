@@ -1,6 +1,6 @@
 #include "trade_market.hpp"
 #include "godot_cpp/core/print_string.hpp"
-#include "trader.hpp"
+#include "rule_trader.hpp"
 #include "wallet.hpp"
 
 using namespace godot;
@@ -9,20 +9,20 @@ void TradeMarket::_ready() {
 	add_to_group("trade_market");
 }
 
-Trader *TradeMarket::_resolve_trader(const Variant &entry) {
+RuleTrader *TradeMarket::_resolve_trader(const Variant &entry) {
 	NodePath path = entry;
 	if (path.is_empty())
 		return nullptr;
-	return get_node<Trader>(path);
+	return get_node<RuleTrader>(path);
 }
 
-Trader *TradeMarket::find_best_seller(const String &item_id, const String &currency_id, int amount) {
-	Trader *best = nullptr;
+RuleTrader *TradeMarket::find_best_seller(const String &item_id, const String &currency_id, int amount) {
+	RuleTrader *best = nullptr;
 	float best_price = FLT_MAX;
 	int best_stock = 0;
 
 	for (int i = 0; i < traders.size(); ++i) {
-		Trader *t = _resolve_trader(traders[i]);
+		RuleTrader *t = _resolve_trader(traders[i]);
 		if (!t || !t->get_wallet())
 			continue;
 		if (!t->has_sell_rule_for(item_id))
@@ -43,7 +43,7 @@ Trader *TradeMarket::find_best_seller(const String &item_id, const String &curre
 	return best;
 }
 
-bool TradeMarket::execute_trade(Trader *buyer, Trader *seller, const String &item_id, const String &currency_id, int amount) {
+bool TradeMarket::execute_trade(RuleTrader *buyer, RuleTrader *seller, const String &item_id, const String &currency_id, int amount) {
 	if (!buyer || !seller)
 		return false;
 
@@ -77,7 +77,7 @@ TradeRule::SupplyLevel TradeMarket::get_supply_level(const String &item_id) {
 	int trader_count = traders.size();
 
 	for (int i = 0; i < trader_count; ++i) {
-		Trader *t = _resolve_trader(traders[i]);
+		RuleTrader *t = _resolve_trader(traders[i]);
 		if (!t || !t->get_wallet())
 			continue;
 		if (!t->has_sell_rule_for(item_id))

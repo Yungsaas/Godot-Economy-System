@@ -1,3 +1,4 @@
+#pragma once
 #include "godot_cpp/classes/node.hpp"
 #include "godot_cpp/variant/array.hpp"
 #include "godot_cpp/variant/node_path.hpp"
@@ -5,7 +6,7 @@
 
 using namespace godot;
 
-class Trader;
+class RuleTrader;
 
 class TradeMarket : public Node {
 	GDCLASS(TradeMarket, Node)
@@ -19,10 +20,10 @@ public:
 	void remove_trader(const NodePath &path) { traders.erase(path); }
 
 	// returns best seller: lowest price, tie-broken by most stock; nullptr if none found
-	Trader *find_best_seller(const String &item_id, const String &currency_id, int amount);
+	RuleTrader *find_best_seller(const String &item_id, const String &currency_id, int amount);
 
 	// transfers item seller -> buyer, currency buyer -> seller
-	bool execute_trade(Trader *buyer, Trader *seller, const String &item_id, const String &currency_id, int amount);
+	bool execute_trade(RuleTrader *buyer, RuleTrader *seller, const String &item_id, const String &currency_id, int amount);
 
 	// ratio of traders with stock of item_id mapped to a SupplyLevel
 	TradeRule::SupplyLevel get_supply_level(const String &item_id);
@@ -33,7 +34,7 @@ protected:
 	static void _bind_methods();
 
 private:
-	Array traders; // Array of NodePaths pointing to Trader nodes
+	Array traders; // Array of NodePaths pointing to RuleTrader nodes
 
-	Trader *_resolve_trader(const Variant &entry);
+	RuleTrader *_resolve_trader(const Variant &entry);
 };

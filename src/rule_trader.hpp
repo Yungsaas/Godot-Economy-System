@@ -15,11 +15,13 @@ using namespace godot;
 // forward declaration — breaks circular include with trade_market.hpp
 class TradeMarket;
 
-class Trader : public Node {
-	GDCLASS(Trader, Node)
+// RuleTrader trades by evaluating TradeRule conditions every tick.
+// Part of the rule based trading system, separate from GoapTrader.
+class RuleTrader : public Node {
+	GDCLASS(RuleTrader, Node)
 
 public:
-	Trader();
+	RuleTrader();
 
 	Wallet *get_wallet() const { return linked_wallet; }
 

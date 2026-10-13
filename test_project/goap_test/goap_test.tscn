@@ -1,0 +1,152 @@
+[gd_scene load_steps=15 format=3 uid="uid://cvncdq5t6rkkd"]
+
+[ext_resource type="Script" uid="uid://72un866gl511" path="res://goap_test/goap_test.gd" id="1_script"]
+
+[sub_resource type="GoapAction" id="GoapAction_farm_grain"]
+action_name = "Farm grain"
+produces = {
+"grain": 3
+}
+cost = 2.0
+
+[sub_resource type="GoapAction" id="GoapAction_sell_grain"]
+action_name = "Sell grain"
+kind = 1
+consumes = {
+"grain": 1
+}
+produces = {
+"gold": 2.0
+}
+
+[sub_resource type="GoapAction" id="GoapAction_buy_bread"]
+action_name = "Buy bread"
+kind = 1
+consumes = {
+"gold": 4.0
+}
+produces = {
+"bread": 1
+}
+
+[sub_resource type="GoapAction" id="GoapAction_buy_water"]
+action_name = "Buy water"
+kind = 1
+consumes = {
+"gold": 2.0
+}
+produces = {
+"water": 1
+}
+
+[sub_resource type="Need" id="Need_thirst"]
+need_id = "thirst"
+display_name = "Thirst"
+decay_per_second = 3.0
+priority = 2
+satisfier_item_id = "water"
+
+[sub_resource type="Need" id="Need_hunger"]
+need_id = "hunger"
+display_name = "Hunger"
+decay_per_second = 1.5
+satisfier_item_id = "bread"
+restore_per_item = 40.0
+
+[sub_resource type="GoapGoal" id="GoapGoal_farmer"]
+goal_name = "Farmer reserves"
+item_targets = {
+"grain": 1
+}
+currency_targets = {
+"gold": 4.0
+}
+
+[sub_resource type="GoapAction" id="GoapAction_buy_grain"]
+action_name = "Buy grain"
+kind = 1
+consumes = {
+"gold": 2.0
+}
+produces = {
+"grain": 1
+}
+
+[sub_resource type="GoapAction" id="GoapAction_bake_bread"]
+action_name = "Bake bread"
+consumes = {
+"grain": 2
+}
+produces = {
+"bread": 2
+}
+
+[sub_resource type="GoapAction" id="GoapAction_sell_bread"]
+action_name = "Sell bread"
+kind = 1
+consumes = {
+"bread": 1
+}
+produces = {
+"gold": 4.0
+}
+
+[sub_resource type="GoapGoal" id="GoapGoal_baker"]
+goal_name = "Baker reserves"
+item_targets = {
+"bread": 1
+}
+currency_targets = {
+"gold": 4.0
+}
+
+[sub_resource type="GoapAction" id="GoapAction_draw_water"]
+action_name = "Draw water"
+produces = {
+"water": 2
+}
+cost = 2.0
+
+[sub_resource type="GoapAction" id="GoapAction_sell_water"]
+action_name = "Sell water"
+kind = 1
+consumes = {
+"water": 1
+}
+produces = {
+"gold": 2.0
+}
+
+[node name="GoapTest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="EconomyManager" type="EconomyManager" parent="."]
+
+[node name="Traders" type="Node" parent="."]
+
+[node name="Ada" type="GoapTrader" parent="Traders"]
+actions = Array[GoapAction]([SubResource("GoapAction_farm_grain"), SubResource("GoapAction_sell_grain"), SubResource("GoapAction_buy_bread"), SubResource("GoapAction_buy_water")])
+
+[node name="Wallet" type="Wallet" parent="Traders/Ada"]
+
+[node name="NeedsComponent" type="NeedsComponent" parent="Traders/Ada"]
+needs = Array[Need]([SubResource("Need_thirst"), SubResource("Need_hunger")])
+fallback_goal = SubResource("GoapGoal_farmer")
+
+[node name="Bram" type="GoapTrader" parent="Traders"]
+actions = Array[GoapAction]([SubResource("GoapAction_buy_grain"), SubResource("GoapAction_bake_bread"), SubResource("GoapAction_sell_bread"), SubResource("GoapAction_buy_water")])
+
+[node name="Wallet" type="Wallet" parent="Traders/Bram"]
+
+[node name="NeedsComponent" type="NeedsComponent" parent="Traders/Bram"]
+needs = Array[Need]([SubResource("Need_thirst"), SubResource("Need_hunger")])
+fallback_goal = SubResource("GoapGoal_baker")
+
+[node name="Cato" type="GoapTrader" parent="Traders"]
+actions = Array[GoapAction]([SubResource("GoapAction_draw_water"), SubResource("GoapAction_sell_water"), SubResource("GoapAction_buy_bread")])

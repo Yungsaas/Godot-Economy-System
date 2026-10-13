@@ -1,4 +1,3 @@
-#pragma once
 #include "wallet.hpp"
 #include "economy_item.hpp"
 #include "godot_cpp/classes/object.hpp"
@@ -6,35 +5,69 @@
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/core/print_string.hpp"
 
-void Wallet::_ready() {
-	get_tree()->connect("node_added", Callable(this, "_on_node_added"));
+EconomyManager *Wallet::_get_manager() {
+	if (economy_manager_id != 0) {
+		if (EconomyManager *mgr = Object::cast_to<EconomyManager>(ObjectDB::get_instance(economy_manager_id))) {
+			return mgr;
+		}
+		// The manager that was bound has been freed, look for a new one.
+		economy_manager_id = 0;
+	}
+	if (!bind_economy_manager_from_group()) {
+		return nullptr;
+	}
+	return Object::cast_to<EconomyManager>(ObjectDB::get_instance(economy_manager_id));
 }
 
-void Wallet::add_currency(const String &id, float amount) {
-	if (!economy_manager)
-		bind_economy_manager_from_group();
-	auto currvar = economy_manager->get_currencies()[id];
-	if (!currvar) {
-		print_error("Currency \"" + id + " not found.");
-		return;
+bool Wallet::bind_economy_manager_from_group() {
+	if (!is_inside_tree()) {
+		print_error("Wallet \"", get_name(), "\" is not inside the scene tree, so it cannot find an economy manager.");
+		return false;
 	}
-	float bal = balances_currencies[id];
-	bal += amount;
+	Node *mgr_n = get_tree()->get_first_node_in_group("economy_manager");
+	if (EconomyManager *mgr = Object::cast_to<EconomyManager>(mgr_n)) {
+		economy_manager_id = mgr->get_instance_id();
+		return true;
+	}
+	print_error("No economy manager found.");
+	return false;
+}
+
+/* Currencies */
+
+bool Wallet::add_currency(const String &id, float amount) {
+	if (amount <= 0.0f) {
+		print_error("Amount of currency \"", id, "\" to add must be positive, got ", amount);
+		return false;
+	}
+	EconomyManager *mgr = _get_manager();
+	if (!mgr) {
+		return false;
+	}
+	if (!mgr->has_currency(id)) {
+		print_error("Currency \"", id, "\" not found.");
+		return false;
+	}
+	float bal = (float)balances_currencies.get(id, 0.0f) + amount;
 	balances_currencies[id] = bal;
 	emit_signal("balance_changed", id, bal);
+	return true;
 }
 
 bool Wallet::remove_currency(const String &id, float amount) {
-	if (!economy_manager)
-		bind_economy_manager_from_group();
-
-	auto currvar = economy_manager->get_currencies()[id];
-	if (!currvar) {
-		print_error("Currency \"" + id + "\" not found.");
+	if (amount <= 0.0f) {
+		print_error("Amount of currency \"", id, "\" to remove must be positive, got ", amount);
 		return false;
 	}
-
-	float bal = balances_currencies[id];
+	EconomyManager *mgr = _get_manager();
+	if (!mgr) {
+		return false;
+	}
+	if (!mgr->has_currency(id)) {
+		print_error("Currency \"", id, "\" not found.");
+		return false;
+	}
+	float bal = balances_currencies.get(id, 0.0f);
 	if (bal < amount) {
 		print_error("Balance of \"", id, "\" is insufficient. Required: ", amount, " Has: ", bal);
 		return false;
@@ -46,17 +79,20 @@ bool Wallet::remove_currency(const String &id, float amount) {
 }
 
 bool Wallet::has_currency(const String &id, float amount) const {
-	float bal = balances_currencies[id];
-	return bal >= amount;
+	return get_currency_balance_of(id) >= amount;
+}
+
+float Wallet::get_currency_balance_of(const String &id) const {
+	return balances_currencies.get(id, 0.0f);
 }
 
 bool Wallet::transfer_currency_to(Wallet *other, const String &id, float amount) {
-	if (!economy_manager)
-		bind_economy_manager_from_group();
-
-	auto currvar = economy_manager->get_currencies()[id];
-	if (!currvar) {
-		print_error("Currency \"" + id + "\" not found.");
+	if (!other) {
+		print_error("Cannot transfer currency \"", id, "\", the other wallet is null.");
+		return false;
+	}
+	if (other == this) {
+		print_error("Cannot transfer currency \"", id, "\" to the same wallet.");
 		return false;
 	}
 	if (!other->is_node_ready()) {
@@ -66,80 +102,99 @@ bool Wallet::transfer_currency_to(Wallet *other, const String &id, float amount)
 	if (!remove_currency(id, amount)) {
 		return false;
 	}
-	other->add_currency(id, amount);
+	if (!other->add_currency(id, amount)) {
+		// The receiver refused, give the currency back so nothing is lost.
+		add_currency(id, amount);
+		return false;
+	}
 	return true;
 }
 
-bool Wallet::add_item(const String &id, int amount) {
-	if (!economy_manager)
-		bind_economy_manager_from_group();
+/* Items */
 
-	auto economy_variant = economy_manager->get_items()[id];
-	if (!economy_variant) {
-		print_error("Item \"" + id + "\" not found.");
+bool Wallet::add_item(const String &id, int amount) {
+	if (amount <= 0) {
+		print_error("Amount of item \"", id, "\" to add must be positive, got ", amount);
+		return false;
+	}
+	EconomyManager *mgr = _get_manager();
+	if (!mgr) {
+		return false;
+	}
+	Ref<EconomyItem> economy_item = mgr->get_item(id);
+	if (!economy_item.is_valid()) {
+		print_error("Item \"", id, "\" not found.");
 		return false;
 	}
 
-	auto economy_item = Object::cast_to<EconomyItem>(economy_variant);
-
-	int bal = balances_items[id];
-	if (economy_item->get_stackable()) {
-		if (economy_item->get_max_stack_size() < (bal + amount)) {
-			print_error("Tried to add economy item amount above max stack size.");
-			return false;
-		}
-		bal += amount;
-		balances_items[id] = bal;
-		emit_signal("balance_changed", id, bal);
-		return true;
-	} else {
-		if (bal == 0 && amount == 1) {
-			balances_items[id] = 1;
-			emit_signal("balance_changed", id, bal);
-			return true;
-		}
+	int bal = get_item_balance_of(id);
+	int max_amount = economy_item->get_stackable() ? economy_item->get_max_stack_size() : 1;
+	if (bal + amount > max_amount) {
+		print_error("Adding ", amount, " of \"", id, "\" would exceed its maximum of ", max_amount, ". Has: ", bal);
+		return false;
 	}
-	return false;
+	bal += amount;
+	balances_items[id] = bal;
+	emit_signal("balance_changed", id, bal);
+	return true;
 }
 
 bool Wallet::remove_item(const String &id, int amount) {
-	if (!economy_manager)
-		bind_economy_manager_from_group();
-	auto vb = economy_manager->get_items()[id];
-	if (!vb) {
-		print_error("Item \"" + id + "\" not found");
+	if (amount <= 0) {
+		print_error("Amount of item \"", id, "\" to remove must be positive, got ", amount);
 		return false;
 	}
-	int bal = balances_items[id];
-	if ((bal - amount) < 0) {
+	EconomyManager *mgr = _get_manager();
+	if (!mgr) {
+		return false;
+	}
+	if (!mgr->has_item(id)) {
+		print_error("Item \"", id, "\" not found");
+		return false;
+	}
+	int bal = get_item_balance_of(id);
+	if (bal < amount) {
 		print_error("Balance of \"", id, "\" is insufficient. Required: ", amount, " Has: ", bal);
 		return false;
 	}
-	balances_items[id] = bal -= amount;
+	bal -= amount;
+	balances_items[id] = bal;
 	emit_signal("balance_changed", id, bal);
 	return true;
 }
 
 bool Wallet::has_item(const String &id, int amount) const {
-	int bal = balances_items[id];
-	return bal >= amount;
+	return get_item_balance_of(id) >= amount;
+}
+
+int Wallet::get_item_balance_of(const String &id) const {
+	return balances_items.get(id, 0);
 }
 
 bool Wallet::transfer_item_to(Wallet *other, const String &id, int amount) {
-	if (!economy_manager)
-		bind_economy_manager_from_group();
-
-	auto econ_item_var = economy_manager->get_items()[id];
-	if (!econ_item_var) {
-		print_error("Item \"" + id + "\" not found");
+	if (!other) {
+		print_error("Cannot transfer item \"", id, "\", the other wallet is null.");
 		return false;
 	}
-	auto econ_item = Object::cast_to<EconomyItem>(econ_item_var);
+	if (other == this) {
+		print_error("Cannot transfer item \"", id, "\" to the same wallet.");
+		return false;
+	}
 	if (!other->is_node_ready()) {
 		print_error("Other node was not ready");
 		return false;
 	}
-	if (econ_item->get_max_stack_size() < other->get_item_balance_of(id) + amount) {
+	EconomyManager *mgr = _get_manager();
+	if (!mgr) {
+		return false;
+	}
+	Ref<EconomyItem> econ_item = mgr->get_item(id);
+	if (!econ_item.is_valid()) {
+		print_error("Item \"", id, "\" not found");
+		return false;
+	}
+	int max_amount = econ_item->get_stackable() ? econ_item->get_max_stack_size() : 1;
+	if (other->get_item_balance_of(id) + amount > max_amount) {
 		print_error("This transaction would exceed max stack size");
 		return false;
 	}
@@ -147,45 +202,12 @@ bool Wallet::transfer_item_to(Wallet *other, const String &id, int amount) {
 	if (!remove_item(id, amount)) {
 		return false;
 	}
-	other->add_item(id, amount);
-	return true;
-}
-
-void Wallet::_on_economy_manager_ready(Object *mgr_obj) {
-	EconomyManager *mgr = Object::cast_to<EconomyManager>(mgr_obj);
-	if (!mgr) {
-		print_error("Could not bind economy manager");
-		return;
-	}
-	economy_manager = mgr;
-	print_line("bound mgr");
-}
-
-void Wallet::_on_node_added(Node *node) {
-	if (!node)
-		return;
-	if (!economy_manager)
-		bind_economy_manager_from_group();
-}
-
-bool Wallet::bind_economy_manager_from_group() {
-	auto mgr_n = get_tree()->get_first_node_in_group("economy_manager");
-	if (EconomyManager *mgr = Object::cast_to<EconomyManager>(mgr_n)) {
-		print_line("Economy manager linked to ", this);
-		economy_manager = mgr;
-		return true;
-	} else {
-		print_error("No economy manager found.");
+	if (!other->add_item(id, amount)) {
+		// The receiver refused, give the item back so nothing is lost.
+		add_item(id, amount);
 		return false;
 	}
-}
-
-float Wallet::get_currency_balance_of(const String &currency_id) {
-	return balances_currencies[currency_id];
-}
-
-int Wallet::get_item_balance_of(const String &item_id) {
-	return balances_items[item_id];
+	return true;
 }
 
 void Wallet::_bind_methods() {
@@ -204,10 +226,6 @@ void Wallet::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("has_item", "item", "amount"), &Wallet::has_item);
 	ClassDB::bind_method(D_METHOD("get_items"), &Wallet::get_items);
 	ClassDB::bind_method(D_METHOD("get_item_balance", "item"), &Wallet::get_item_balance_of);
-
-	/* Signal functions */
-	ClassDB::bind_method(D_METHOD("_on_economy_manager_ready", "manager"), &Wallet::_on_economy_manager_ready);
-	ClassDB::bind_method(D_METHOD("_on_node_added", "node"), &Wallet::_on_node_added);
 
 	/* Signal emitters */
 	ADD_SIGNAL(MethodInfo("balance_changed", PropertyInfo(Variant::STRING, "item_id"), PropertyInfo(Variant::FLOAT, "new_amount")));

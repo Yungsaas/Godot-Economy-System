@@ -1,11 +1,22 @@
 #include "currency.hpp"
 #include "economy_item.hpp"
 #include "economy_manager.hpp"
+#include "wallet.hpp"
+
+// Rule based trading (separate system)
+#include "rule_trader.hpp"
 #include "trade_market.hpp"
 #include "trade_rule.hpp"
-#include "trader.hpp"
 #include "trader_profile.hpp"
-#include "wallet.hpp"
+
+// GOAP trading
+#include "goap/goap_action.hpp"
+#include "goap/goap_goal.hpp"
+#include "goap/goap_plan.hpp"
+#include "goap/goap_planner.hpp"
+#include "goap/goap_trader.hpp"
+#include "goap/need.hpp"
+#include "goap/needs_component.hpp"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/class_db.hpp>
@@ -22,10 +33,21 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 	GDREGISTER_CLASS(EconomyItem)
 	GDREGISTER_CLASS(EconomyManager)
 	GDREGISTER_CLASS(Wallet)
+
+	// Rule based trading (separate system)
 	GDREGISTER_CLASS(TradeRule)
 	GDREGISTER_CLASS(TraderProfile)
-	GDREGISTER_CLASS(Trader)
+	GDREGISTER_CLASS(RuleTrader)
 	GDREGISTER_CLASS(TradeMarket)
+
+	// GOAP trading
+	GDREGISTER_CLASS(GoapAction)
+	GDREGISTER_CLASS(GoapGoal)
+	GDREGISTER_CLASS(GoapPlan)
+	GDREGISTER_CLASS(Need)
+	GDREGISTER_CLASS(NeedsComponent)
+	GDREGISTER_CLASS(GoapPlanner)
+	GDREGISTER_CLASS(GoapTrader)
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {

@@ -1,4 +1,3 @@
-#pragma once
 #include "economy_item.hpp"
 
 using namespace godot;
@@ -13,7 +12,7 @@ void EconomyItem::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "display_name"), "set_name", "get_name");
 
 	ClassDB::bind_method(D_METHOD("get_stackable"), &EconomyItem::get_stackable);
-	ClassDB::bind_method(D_METHOD("set_stackable", "precision"), &EconomyItem::set_stackable);
+	ClassDB::bind_method(D_METHOD("set_stackable", "stackable"), &EconomyItem::set_stackable);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stackable"), "set_stackable", "get_stackable");
 
 	ClassDB::bind_method(D_METHOD("get_base_value"), &EconomyItem::get_base_value);

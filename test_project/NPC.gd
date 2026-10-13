@@ -63,7 +63,7 @@ func _process(delta):
 func _on_balance_changed(_id, _amount):
 	get_tree().call_group("ui", "refresh_wallet_display")
 
-func get_trader() -> Trader:
+func get_trader() -> RuleTrader:
 	return $Trader
 
 func open_shop():

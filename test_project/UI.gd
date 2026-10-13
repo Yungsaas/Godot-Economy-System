@@ -43,7 +43,7 @@ func refresh_wallet_display():
 	var grid = $WalletPanel/VBox/WalletGrid
 	var col_count = grid.columns
 	while grid.get_child_count() > col_count:
-		grid.get_child(grid.get_child_count() - 1).queue_free()
+		grid.get_child(grid.get_child_count() - 1).free()
 	var all_traders = _npcs.duplicate()
 	if _player: all_traders.append(_player)
 	for node in all_traders:

@@ -1,4 +1,3 @@
-#pragma once
 #include "currency.hpp"
 
 using namespace godot;
