@@ -8,30 +8,22 @@
 [sub_resource type="Currency" id="Currency_gold"]
 id = "gold"
 display_name = "Gold"
-precision = 2
-base_value = 1.0
 symbol = "G"
 
 [sub_resource type="EconomyItem" id="EconomyItem_water"]
 id = "water"
 display_name = "Water"
-stackable = true
 base_value = 2.5
-max_stack_size = 999
 
 [sub_resource type="EconomyItem" id="EconomyItem_bread"]
 id = "bread"
 display_name = "Bread"
-stackable = true
 base_value = 6.0
-max_stack_size = 999
 
 [sub_resource type="EconomyItem" id="EconomyItem_grain"]
 id = "grain"
 display_name = "Grain"
-stackable = true
 base_value = 3.0
-max_stack_size = 999
 
 [sub_resource type="GoapAction" id="GoapAction_farm_grain"]
 action_name = "Farm grain"
