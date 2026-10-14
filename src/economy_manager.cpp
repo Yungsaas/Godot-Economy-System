@@ -1,4 +1,6 @@
 #include "economy_manager.hpp"
+#include "profiling.hpp"
+#include "godot_cpp/classes/engine.hpp"
 #include "godot_cpp/classes/ref.hpp"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/object.hpp"
@@ -13,7 +15,20 @@ void EconomyManager::_notification(int p_what) {
 	// _ready without calling super() does not silently remove the manager from the group.
 	if (p_what == NOTIFICATION_ENTER_TREE) {
 		add_to_group("economy_manager");
+		if (!Engine::get_singleton()->is_editor_hint()) {
+			_register_initial_content();
+		}
 	}
+#ifdef TRACY_ENABLE
+	// Godot owns the main loop, so the manager marks the frames for the profiler. There is
+	// one manager per scene, which gives exactly one frame mark per frame.
+	if (p_what == NOTIFICATION_READY && !Engine::get_singleton()->is_editor_hint()) {
+		set_process(true);
+	}
+	if (p_what == NOTIFICATION_PROCESS) {
+		ECONOMY_FRAME_END();
+	}
+#endif
 }
 
 Ref<Currency> EconomyManager::create_currency(const String &id, const String &name, int precision, float base_value, const String &symbol) {
@@ -111,7 +126,33 @@ Dictionary EconomyManager::get_items() const {
 	return items.duplicate();
 }
 
+void EconomyManager::_register_initial_content() {
+	// Currencies first: an item may not take an id that a currency already uses, so the
+	// currencies a designer set up take precedence. A resource that is already registered
+	// (for example when the manager re-enters the tree) is skipped.
+	for (int i = 0; i < initial_currencies.size(); ++i) {
+		Ref<Currency> currency = initial_currencies[i];
+		if (currency.is_valid() && Ref<Currency>(currencies.get(currency->get_id(), Variant())) != currency) {
+			register_currency(currency);
+		}
+	}
+	for (int i = 0; i < initial_items.size(); ++i) {
+		Ref<EconomyItem> item = initial_items[i];
+		if (item.is_valid() && Ref<EconomyItem>(items.get(item->get_id(), Variant())) != item) {
+			register_economy_item(item);
+		}
+	}
+}
+
 void EconomyManager::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_initial_currencies"), &EconomyManager::get_initial_currencies);
+	ClassDB::bind_method(D_METHOD("set_initial_currencies", "currencies"), &EconomyManager::set_initial_currencies);
+	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "initial_currencies", PROPERTY_HINT_ARRAY_TYPE, "Currency"),
+				 "set_initial_currencies", "get_initial_currencies");
+	ClassDB::bind_method(D_METHOD("get_initial_items"), &EconomyManager::get_initial_items);
+	ClassDB::bind_method(D_METHOD("set_initial_items", "items"), &EconomyManager::set_initial_items);
+	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "initial_items", PROPERTY_HINT_ARRAY_TYPE, "EconomyItem"),
+				 "set_initial_items", "get_initial_items");
 	/* Currencies */
 	ClassDB::bind_method(D_METHOD("create_currency", "id", "name", "precision", "base_value", "symbol"),
 						 &EconomyManager::create_currency, DEFVAL(2), DEFVAL(1.0f), DEFVAL(String("$")));

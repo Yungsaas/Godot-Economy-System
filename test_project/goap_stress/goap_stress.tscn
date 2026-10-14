@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://70q47c0iv65u"]
+
+[ext_resource type="Script" uid="uid://2x3wphtktmpg" path="res://goap_stress/goap_stress.gd" id="1_stress"]
+
+[node name="GoapStress" type="Node"]
+script = ExtResource("1_stress")

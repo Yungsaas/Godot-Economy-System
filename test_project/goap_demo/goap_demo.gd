@@ -28,23 +28,19 @@ var _pause_button: Button
 
 func _ready() -> void:
 	# Children are ready before this runs, so every GoapTrader already has its children.
-	_register_content()
+	# Currencies and items are authored in the inspector on the EconomyManager
+	# (initial_currencies, initial_items), so nothing is registered in code here.
 	for npc in $NPCs.get_children():
 		_set_up_npc(npc)
 	_build_ui()
 	_log("Ready. Nothing below is scripted: every trade comes from an NPC's own plan.")
 
 
-func _register_content() -> void:
-	# Prices are balanced so no NPC slowly gains or loses gold. Per 40 seconds each NPC eats
-	# about 1 bread and drinks about 1.2 water; the baker bakes 3 bread from 3 grain, eats one
-	# and sells two. Income equals spending for everyone when bread = 2.4 x water and
-	# grain = 1.2 x water. Base values match the prices in the actions, so the tie rule sees
-	# ordinary trades as fair.
-	economy.create_currency("gold", "Gold", 2, 1.0, "G")
-	economy.create_item("water", "Water", 2.5)
-	economy.create_item("bread", "Bread", 6.0)
-	economy.create_item("grain", "Grain", 3.0)
+# Prices are balanced so no NPC slowly gains or loses gold. Per 40 seconds each NPC eats
+# about 1 bread and drinks about 1.2 water; the baker bakes 3 bread from 3 grain, eats one
+# and sells two. Income equals spending for everyone when bread = 2.4 x water and
+# grain = 1.2 x water. The base values on the items in the EconomyManager match the prices
+# in the actions, so the tie rule sees ordinary trades as fair.
 
 
 func _set_up_npc(npc: Node) -> void:

@@ -1,6 +1,7 @@
 #include "goap/goap_trader.hpp"
 #include "economy_manager.hpp"
 #include "goap/economy_amounts.hpp"
+#include "profiling.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
@@ -42,6 +43,7 @@ void GoapTrader::_notification(int p_what) {
 			}
 		} break;
 		case NOTIFICATION_PROCESS: {
+			ZoneScopedN("GoapTrader::process");
 			const double delta = get_process_delta_time();
 			sim_time += delta;
 			if (!auto_run || executing) {
@@ -184,6 +186,7 @@ float GoapTrader::get_action_penalty(const Ref<GoapAction> &action) const {
 }
 
 Ref<GoapPlan> GoapTrader::make_plan() {
+	ZoneScopedN("GoapTrader::make_plan");
 	Wallet *wallet = get_wallet();
 	NeedsComponent *needs = get_needs();
 	GoapPlanner *planner = get_planner();
@@ -291,6 +294,7 @@ void GoapTrader::_start_step(int index) {
 }
 
 void GoapTrader::complete_step() {
+	ZoneScopedN("GoapTrader::complete_step");
 	if (!executing) {
 		print_error("GoapTrader \"", get_name(), "\": complete_step() was called while no step is running.");
 		return;
@@ -360,6 +364,7 @@ void GoapTrader::_end_step() {
 }
 
 GoapTrader *GoapTrader::_find_partner(const Ref<GoapAction> &action, String *reason) {
+	ZoneScopedN("GoapTrader::_find_partner");
 	EconomyManager *manager = _get_manager();
 	String problem;
 	if (!economy_amounts::has_all(get_wallet(), action->get_consumes(), manager, &problem)) {
@@ -443,6 +448,7 @@ Dictionary GoapTrader::_offer_result(bool accepted, const String &reason, const 
 }
 
 Dictionary GoapTrader::evaluate_offer(const Dictionary &they_give, const Dictionary &they_want) {
+	ZoneScopedN("GoapTrader::evaluate_offer");
 	EconomyManager *manager = _get_manager();
 	Wallet *wallet = get_wallet();
 	GoapPlanner *planner = get_planner();
@@ -529,6 +535,7 @@ Dictionary GoapTrader::evaluate_offer(const Dictionary &they_give, const Diction
 }
 
 Dictionary GoapTrader::receive_offer(Wallet *from_wallet, const Dictionary &they_give, const Dictionary &they_want) {
+	ZoneScopedN("GoapTrader::receive_offer");
 	Dictionary result = evaluate_offer(they_give, they_want);
 	bool accepted = result.get("accepted", false);
 
@@ -610,6 +617,7 @@ void GoapTrader::_clear_demands_for(const Dictionary &amounts) {
 }
 
 bool GoapTrader::_market_has(const Dictionary &amounts) {
+	ZoneScopedN("GoapTrader::_market_has");
 	if (!is_inside_tree() || market_group.is_empty()) {
 		return false;
 	}
@@ -637,6 +645,7 @@ bool GoapTrader::_can_produce(const String &item_id) const {
 }
 
 Dictionary GoapTrader::_collect_market_demands() {
+	ZoneScopedN("GoapTrader::_collect_market_demands");
 	Dictionary demands; // item id -> largest amount any other trader asks for
 	if (!is_inside_tree() || market_group.is_empty()) {
 		return demands;
@@ -644,7 +653,9 @@ Dictionary GoapTrader::_collect_market_demands() {
 	TypedArray<Node> members = get_tree()->get_nodes_in_group(market_group);
 	for (int i = 0; i < members.size(); ++i) {
 		GoapTrader *other = Object::cast_to<GoapTrader>(members[i]);
-		if (!other || other == this) {
+		// Most traders have no demands most of the time. Checking that first skips building
+		// a Dictionary for them, which made this scan the most expensive part of make_plan.
+		if (!other || other == this || other->posted_demands.is_empty()) {
 			continue;
 		}
 		Dictionary theirs = other->get_active_demands();
@@ -704,6 +715,7 @@ Array GoapTrader::_goals_in_order(NeedsComponent *needs) {
 }
 
 Ref<GoapPlan> GoapTrader::_plan_around_market(const Ref<GoapGoal> &goal, Wallet *wallet, GoapPlanner *planner, const Dictionary &penalties) {
+	ZoneScopedN("GoapTrader::_plan_around_market");
 	// The planner only sees this trader's own wallet, so it assumes every trade can happen.
 	// Here the first step is checked against the market: if it is a trade nobody can serve
 	// right now, a demand is posted and the goal is planned again without that action, so a

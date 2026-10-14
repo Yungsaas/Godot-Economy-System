@@ -48,6 +48,9 @@ opts.Add(EnumVariable(
     'no',  # default
     allowed_values=('yes', 'no', 'true', 'false')
 ))
+# Profiling with Tracy (https://github.com/wolfpld/tracy), from the thirdparty/tracy submodule.
+# Off by default: without it the profiling markers in the code compile to nothing.
+opts.Add(BoolVariable('tracy', 'Build with the Tracy profiler client (needs the thirdparty/tracy submodule)', False))
 
 # Build profiles can be used to decrease compile times.
 # You can either specify "disabled_classes", OR
@@ -93,6 +96,24 @@ env.Append(CPPPATH=include_dirs)
 
 # Find all .cpp files recursively in the specified source directories
 sources = find_sources(source_dirs, source_exts)
+
+# Tracy profiler client
+if env.get('tracy', False):
+    tracy_dir = os.path.join('thirdparty', 'tracy', 'public')
+    if not os.path.isfile(os.path.join(tracy_dir, 'TracyClient.cpp')):
+        print_error("""tracy=yes needs the Tracy submodule, which is missing.
+Run the following command to download it:
+
+    git submodule update --init --recursive""")
+        sys.exit(1)
+    env.Append(CPPPATH=[tracy_dir])
+    # TRACY_ON_DEMAND: only collect data while the profiler app is connected.
+    env.Append(CPPDEFINES=['TRACY_ENABLE', 'TRACY_ON_DEMAND'])
+    sources.append(os.path.join(tracy_dir, 'TracyClient.cpp'))
+    if env['platform'] == 'windows':
+        # System libraries the Tracy client uses on Windows (sockets, symbol lookup).
+        env.Append(LIBS=['ws2_32', 'dbghelp', 'advapi32', 'user32'])
+    print("Building with the Tracy profiler client.")
 
 # Handle documentation generation if applicable
 if env.get("target") in ["editor", "template_debug"]:

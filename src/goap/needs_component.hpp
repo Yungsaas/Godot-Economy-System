@@ -5,6 +5,7 @@
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/string_name.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
 
 using namespace godot;
@@ -78,6 +79,16 @@ private:
 	Dictionary values; // need id -> float
 	Dictionary urgent_flags; // need id -> bool, used to emit urgency changes once
 	Dictionary goals_by_need; // need id -> Ref<GoapGoal>, kept so a need keeps the same goal object
+
+	// Signal names, made once per component. emit_signal with a plain string looks the name
+	// up in the engine's global StringName table on every call, and need_changed is emitted
+	// for every need on every frame. Members rather than statics: a static StringName would
+	// be created when the library loads and destroyed when it unloads, when the engine's
+	// string table may not exist.
+	StringName sn_need_changed = StringName("need_changed");
+	StringName sn_need_became_urgent = StringName("need_became_urgent");
+	StringName sn_need_satisfied = StringName("need_satisfied");
+	StringName sn_need_consumed = StringName("need_consumed");
 
 	void _sync_values();
 	void _apply_value(const Ref<Need> &need, float value);

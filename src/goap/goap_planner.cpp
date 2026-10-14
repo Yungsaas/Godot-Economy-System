@@ -1,5 +1,6 @@
 #include "goap/goap_planner.hpp"
 #include "economy_manager.hpp"
+#include "profiling.hpp"
 #include "wallet.hpp"
 
 #include <godot_cpp/classes/scene_tree.hpp>
@@ -131,6 +132,8 @@ Ref<GoapPlan> GoapPlanner::plan_for_wallet(const Ref<GoapGoal> &goal, Wallet *wa
 }
 
 Ref<GoapPlan> GoapPlanner::plan_from_state(const Ref<GoapGoal> &goal, const Dictionary &state, const Array &actions, Object *trader, const Dictionary &extra_costs) {
+	ZoneScopedN("GoapPlanner::plan_from_state");
+	ECONOMY_COUNT_SEARCH();
 	const uint64_t start_usec = Time::get_singleton()->get_ticks_usec();
 
 	Ref<GoapPlan> plan;
@@ -354,6 +357,7 @@ Ref<GoapPlan> GoapPlanner::plan_from_state(const Ref<GoapGoal> &goal, const Dict
 	}
 
 	plan->explored_states = explored;
+	TracyPlot("explored states per search", (int64_t)explored);
 
 	if (found_node < 0) {
 		if (explored >= max_explored_states) {

@@ -1,4 +1,5 @@
 #include "goap/needs_component.hpp"
+#include "profiling.hpp"
 #include "wallet.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
@@ -109,21 +110,22 @@ void NeedsComponent::_apply_value(const Ref<Need> &need, float value) {
 		return;
 	}
 	values[id] = clamped;
-	emit_signal("need_changed", id, clamped);
+	emit_signal(sn_need_changed, id, clamped);
 
 	bool urgent = clamped <= need->get_urgent_threshold();
 	bool was_urgent = urgent_flags.get(id, false);
 	if (urgent != was_urgent) {
 		urgent_flags[id] = urgent;
 		if (urgent) {
-			emit_signal("need_became_urgent", id);
+			emit_signal(sn_need_became_urgent, id);
 		} else {
-			emit_signal("need_satisfied", id);
+			emit_signal(sn_need_satisfied, id);
 		}
 	}
 }
 
 void NeedsComponent::decay(float delta) {
+	ZoneScopedN("NeedsComponent::decay");
 	if (delta <= 0.0f) {
 		return;
 	}
@@ -164,7 +166,7 @@ bool NeedsComponent::consume_for_need(const String &need_id, Wallet *wallet) {
 		return false;
 	}
 	_apply_value(need, get_need_value(need_id) + need->get_restore_per_item());
-	emit_signal("need_consumed", need_id, satisfier);
+	emit_signal(sn_need_consumed, need_id, satisfier);
 	return true;
 }
 
@@ -180,10 +182,10 @@ int NeedsComponent::try_auto_consume() {
 	if (!auto_consume) {
 		return 0;
 	}
-	Wallet *wallet = get_wallet();
-	if (!wallet) {
-		return 0;
-	}
+	// This runs after every decay, so for every NPC on every frame. Most of the time no
+	// need is low enough to consume, so the wallet is only looked up once one is.
+	Wallet *wallet = nullptr;
+	bool wallet_looked_up = false;
 	int consumed = 0;
 	for (int i = 0; i < needs.size(); ++i) {
 		Ref<Need> need = needs[i];
@@ -194,8 +196,18 @@ int NeedsComponent::try_auto_consume() {
 			continue; // consuming would never raise the value, so it would only waste items
 		}
 		const String id = need->get_need_id();
-		while (get_need_value(id) <= need->get_effective_consume_threshold()
-				&& wallet->has_item(need->get_satisfier_item_id(), 1)) {
+		const float threshold = need->get_effective_consume_threshold();
+		if (get_need_value(id) > threshold) {
+			continue;
+		}
+		if (!wallet_looked_up) {
+			wallet = get_wallet();
+			wallet_looked_up = true;
+		}
+		if (!wallet) {
+			return consumed;
+		}
+		while (get_need_value(id) <= threshold && wallet->has_item(need->get_satisfier_item_id(), 1)) {
 			if (!consume_for_need(id, wallet)) {
 				break;
 			}
