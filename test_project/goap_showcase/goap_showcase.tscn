@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://bp83mi42m257k"]
+
+[ext_resource type="PackedScene" uid="uid://cu1rbet0oxmf4" path="res://goap_demo/goap_demo.tscn" id="1_demo"]
+[ext_resource type="Script" uid="uid://c4nip0e4rynt6" path="res://goap_showcase/goap_showcase.gd" id="2_showcase"]
+
+[node name="GoapShowcase" type="Node"]
+
+[node name="GoapDemo" parent="." instance=ExtResource("1_demo")]
+
+[node name="Showcase" type="Node" parent="."]
+script = ExtResource("2_showcase")

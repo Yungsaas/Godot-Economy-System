@@ -1,0 +1,298 @@
+[gd_scene load_steps=29 format=3 uid="uid://jcsixq0ia5pu"]
+
+[ext_resource type="Script" uid="uid://cfkf6h0p45nb7" path="res://goap_demo/goap_demo.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://cksi2ot4xw3wg" path="res://goap_demo/npc.gd" id="2_npc"]
+[ext_resource type="Script" uid="uid://bw4bpy0mo2a7c" path="res://goap_demo/location.gd" id="3_location"]
+[ext_resource type="Script" uid="uid://diut0d1mx7e8c" path="res://goap_demo/demo_trader.gd" id="4_trader"]
+
+[sub_resource type="Currency" id="Currency_gold"]
+id = "gold"
+display_name = "Gold"
+symbol = "G"
+
+[sub_resource type="EconomyItem" id="EconomyItem_water"]
+id = "water"
+display_name = "Water"
+base_value = 2.5
+
+[sub_resource type="EconomyItem" id="EconomyItem_bread"]
+id = "bread"
+display_name = "Bread"
+base_value = 6.0
+
+[sub_resource type="EconomyItem" id="EconomyItem_grain"]
+id = "grain"
+display_name = "Grain"
+base_value = 3.0
+
+[sub_resource type="EconomyItem" id="EconomyItem_x72ad"]
+id = "firewood"
+display_name = "Firewood"
+base_value = 3.0
+
+[sub_resource type="GoapAction" id="GoapAction_farm_grain"]
+action_name = "Farm grain"
+produces = {
+"grain": 3
+}
+cost = 2.0
+
+[sub_resource type="GoapAction" id="GoapAction_sell_grain"]
+action_name = "Sell grain"
+kind = 1
+consumes = {
+"grain": 1
+}
+produces = {
+"gold": 3.0
+}
+
+[sub_resource type="GoapAction" id="GoapAction_buy_bread"]
+action_name = "Buy bread"
+kind = 1
+consumes = {
+"gold": 6.0
+}
+produces = {
+"bread": 1
+}
+
+[sub_resource type="GoapAction" id="GoapAction_buy_water"]
+action_name = "Buy water"
+kind = 1
+consumes = {
+"gold": 2.5
+}
+produces = {
+"water": 1
+}
+
+[sub_resource type="GoapAction" id="GoapAction_buy_firewood"]
+action_name = "Buy firewood"
+kind = 1
+consumes = {
+"gold": 3.0
+}
+produces = {
+"firewood": 1
+}
+
+[sub_resource type="Need" id="Need_thirst"]
+need_id = "thirst"
+display_name = "Thirst"
+decay_per_second = 1.5
+priority = 2
+satisfier_item_id = "water"
+
+[sub_resource type="Need" id="Need_hunger"]
+need_id = "hunger"
+display_name = "Hunger"
+satisfier_item_id = "bread"
+restore_per_item = 40.0
+
+[sub_resource type="Need" id="Need_warmth"]
+need_id = "warmth"
+display_name = "Warmth"
+start_value = 40.0
+satisfier_item_id = "firewood"
+
+[sub_resource type="GoapGoal" id="GoapGoal_farmer"]
+goal_name = "Farmer reserves"
+item_targets = {
+"grain": 2
+}
+currency_targets = {
+"gold": 4.0
+}
+
+[sub_resource type="GoapAction" id="GoapAction_buy_grain"]
+action_name = "Buy grain"
+kind = 1
+consumes = {
+"gold": 3.0
+}
+produces = {
+"grain": 1
+}
+
+[sub_resource type="GoapAction" id="GoapAction_bake_bread"]
+action_name = "Bake bread"
+consumes = {
+"grain": 1
+}
+produces = {
+"bread": 1
+}
+
+[sub_resource type="GoapAction" id="GoapAction_sell_bread"]
+action_name = "Sell bread"
+kind = 1
+consumes = {
+"bread": 1
+}
+produces = {
+"gold": 6.0
+}
+
+[sub_resource type="GoapGoal" id="GoapGoal_baker"]
+goal_name = "Baker reserves"
+item_targets = {
+"bread": 1
+}
+currency_targets = {
+"gold": 4.0
+}
+
+[sub_resource type="GoapAction" id="GoapAction_draw_water"]
+action_name = "Draw water"
+produces = {
+"water": 2
+}
+cost = 2.0
+
+[sub_resource type="GoapAction" id="GoapAction_sell_water"]
+action_name = "Sell water"
+kind = 1
+consumes = {
+"water": 1
+}
+produces = {
+"gold": 2.5
+}
+
+[sub_resource type="GoapGoal" id="GoapGoal_carrier"]
+goal_name = "Water carrier reserves"
+item_targets = {
+"water": 2
+}
+currency_targets = {
+"gold": 4.0
+}
+
+[sub_resource type="GoapAction" id="GoapAction_chop_wood"]
+action_name = "Chop wood"
+produces = {
+"firewood": 2
+}
+cost = 2.0
+
+[sub_resource type="GoapAction" id="GoapAction_sell_firewood"]
+action_name = "Sell firewood"
+kind = 1
+consumes = {
+"firewood": 1
+}
+produces = {
+"gold": 3.0
+}
+
+[sub_resource type="GoapGoal" id="GoapGoal_woodcutter"]
+goal_name = "Woodcutter reserves"
+item_targets = {
+"firewood": 2
+}
+currency_targets = {
+"gold": 4.0
+}
+
+[node name="GoapFirewood" type="Node2D"]
+script = ExtResource("1_demo")
+
+[node name="EconomyManager" type="EconomyManager" parent="."]
+initial_currencies = Array[Currency]([SubResource("Currency_gold")])
+initial_items = Array[EconomyItem]([SubResource("EconomyItem_water"), SubResource("EconomyItem_bread"), SubResource("EconomyItem_grain"), SubResource("EconomyItem_x72ad")])
+
+[node name="Locations" type="Node2D" parent="."]
+
+[node name="Field" type="Node2D" parent="Locations"]
+position = Vector2(220, 500)
+script = ExtResource("3_location")
+label_text = "Field"
+color = Color(0.45, 0.55, 0.25, 1)
+
+[node name="Bakery" type="Node2D" parent="Locations"]
+position = Vector2(720, 220)
+script = ExtResource("3_location")
+label_text = "Bakery"
+color = Color(0.6, 0.4, 0.25, 1)
+
+[node name="Well" type="Node2D" parent="Locations"]
+position = Vector2(1000, 500)
+script = ExtResource("3_location")
+label_text = "Well"
+color = Color(0.25, 0.4, 0.65, 1)
+
+[node name="Forest" type="Node2D" parent="Locations"]
+position = Vector2(610, 560)
+script = ExtResource("3_location")
+label_text = "Forest"
+color = Color(0.2, 0.4, 0.25, 1)
+
+[node name="NPCs" type="Node2D" parent="."]
+
+[node name="Farmer" type="Node2D" parent="NPCs"]
+position = Vector2(330, 420)
+script = ExtResource("2_npc")
+display_name = "Farmer"
+color = Color(0.9, 0.8, 0.3, 1)
+work_location = NodePath("../../Locations/Field")
+
+[node name="GoapTrader" type="GoapTrader" parent="NPCs/Farmer"]
+actions = Array[GoapAction]([SubResource("GoapAction_farm_grain"), SubResource("GoapAction_sell_grain"), SubResource("GoapAction_buy_bread"), SubResource("GoapAction_buy_water"), SubResource("GoapAction_buy_firewood")])
+script = ExtResource("4_trader")
+
+[node name="Wallet" type="Wallet" parent="NPCs/Farmer/GoapTrader"]
+
+[node name="NeedsComponent" type="NeedsComponent" parent="NPCs/Farmer/GoapTrader"]
+needs = Array[Need]([SubResource("Need_thirst"), SubResource("Need_hunger"), SubResource("Need_warmth")])
+fallback_goal = SubResource("GoapGoal_farmer")
+
+[node name="Baker" type="Node2D" parent="NPCs"]
+position = Vector2(720, 330)
+script = ExtResource("2_npc")
+display_name = "Baker"
+color = Color(0.95, 0.55, 0.3, 1)
+work_location = NodePath("../../Locations/Bakery")
+
+[node name="GoapTrader" type="GoapTrader" parent="NPCs/Baker"]
+actions = Array[GoapAction]([SubResource("GoapAction_buy_grain"), SubResource("GoapAction_bake_bread"), SubResource("GoapAction_sell_bread"), SubResource("GoapAction_buy_water"), SubResource("GoapAction_buy_firewood")])
+script = ExtResource("4_trader")
+
+[node name="Wallet" type="Wallet" parent="NPCs/Baker/GoapTrader"]
+
+[node name="NeedsComponent" type="NeedsComponent" parent="NPCs/Baker/GoapTrader"]
+needs = Array[Need]([SubResource("Need_thirst"), SubResource("Need_hunger"), SubResource("Need_warmth")])
+fallback_goal = SubResource("GoapGoal_baker")
+
+[node name="WaterCarrier" type="Node2D" parent="NPCs"]
+position = Vector2(890, 420)
+script = ExtResource("2_npc")
+display_name = "Water Carrier"
+work_location = NodePath("../../Locations/Well")
+
+[node name="GoapTrader" type="GoapTrader" parent="NPCs/WaterCarrier"]
+actions = Array[GoapAction]([SubResource("GoapAction_draw_water"), SubResource("GoapAction_sell_water"), SubResource("GoapAction_buy_bread")])
+script = ExtResource("4_trader")
+
+[node name="Wallet" type="Wallet" parent="NPCs/WaterCarrier/GoapTrader"]
+
+[node name="NeedsComponent" type="NeedsComponent" parent="NPCs/WaterCarrier/GoapTrader"]
+needs = Array[Need]([SubResource("Need_thirst"), SubResource("Need_hunger")])
+fallback_goal = SubResource("GoapGoal_carrier")
+
+[node name="Woodcutter" type="Node2D" parent="NPCs"]
+position = Vector2(610, 460)
+script = ExtResource("2_npc")
+display_name = "Woodcutter"
+color = Color(0.55, 0.35, 0.2, 1)
+work_location = NodePath("../../Locations/Forest")
+
+[node name="GoapTrader" type="GoapTrader" parent="NPCs/Woodcutter"]
+actions = Array[GoapAction]([SubResource("GoapAction_chop_wood"), SubResource("GoapAction_sell_firewood"), SubResource("GoapAction_buy_water"), SubResource("GoapAction_buy_bread")])
+script = ExtResource("4_trader")
+
+[node name="Wallet" type="Wallet" parent="NPCs/Woodcutter/GoapTrader"]
+
+[node name="NeedsComponent" type="NeedsComponent" parent="NPCs/Woodcutter/GoapTrader"]
+needs = Array[Need]([SubResource("Need_thirst"), SubResource("Need_hunger")])
+fallback_goal = SubResource("GoapGoal_woodcutter")
